@@ -335,6 +335,8 @@
           </h3>
           <p><strong>Rol:</strong>{{admin.tipo}}</p>
         </li>
+        {% empty %}
+        <li>No hay Administradores registrados</li>
         {% endfor %}
       </ul>
     </div>
