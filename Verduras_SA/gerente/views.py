@@ -1,0 +1,264 @@
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import VerGranjas, VerBodegas, VerAdmins, VerCoords, VerProductos, VerCoordsInsta, Producto, VerAdminsInsta
+from django.contrib import messages
+from django.db import connection
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+
+@login_required
+def home_gerente(request):
+    granjas = VerGranjas.objects.all()
+    bodegas = VerBodegas.objects.all() 
+    admins = VerAdmins.objects.all()
+    coords = VerCoords.objects.all()
+    productos = VerProductos.objects.all()
+
+    context = {
+        "granjas": granjas,
+        "bodegas": bodegas,
+        "admins": admins,
+        "coords": coords,
+        "productos": productos,
+    }
+    return render(request, "home_gerente.html", context)
+
+#Gestion de Granjas
+@login_required
+def gestion_Granjas(request):
+    granjas = VerGranjas.objects.all()
+    context = {
+        "granjas": granjas,
+    }
+    return render(request, "gestion_Granjas.html", context)
+
+@login_required
+def crear_Granja(request):
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre')
+        dirrecion = request.POST.get('dirrecion')
+
+        if not nombre or not dirrecion:
+            messages.error(request, "⚠️ Por favor complete todos los campos.")
+            return redirect('Crear-Granja')
+
+        # Normalizar texto para comparar sin mayúsculas o espacios
+        nombre_limpio = nombre.strip().lower()
+        dirrecion_limpia = dirrecion.strip().lower()
+
+        # Validación: existencia previa
+        if VerGranjas.objects.filter(nombre__iexact=nombre_limpio).exists():
+            messages.error(request, "❌ Ya existe una granja con ese nombre.")
+            return redirect('Crear-Granja')
+        elif VerGranjas.objects.filter(direccion__iexact=dirrecion_limpia).exists():
+            messages.error(request, "❌ Ya existe una granja con esa dirrecion.")
+            return redirect('Crear-Granja')
+        
+        # Crear registro si todo es válido
+        try:
+            with connection.cursor() as cursor:
+                cursor.callproc('agregar_instalacion', [nombre, dirrecion, 1])
+            messages.success(request, f"✅ La granja '{nombre}' fue registrada correctamente.")
+        except Exception as e:
+            messages.error(request, f"⚠️ Error al registrar: {e}")
+
+        return redirect('Crear-Granja')
+
+    return render(request, 'crear_Granja.html')
+
+@csrf_exempt  
+@require_POST
+@login_required
+def eliminar_Granja(request, id):
+    try:
+        with connection.cursor() as cursor:
+            cursor.callproc('eliminar_instalacion', [id])
+        return JsonResponse({'status': 'ok'})
+    except Exception as e:
+        print("Error eliminando instalación:", e)
+        return JsonResponse({'status': 'error'}, status=500)
+
+
+#Vista de Coordinadores
+@login_required 
+def vista_coordinadores(request):
+    coords = VerCoordsInsta.objects.all()
+    return render(request, "vista_Coord.html", {
+        "coords": coords,
+    })
+    
+
+#Gestion de Productos
+@login_required
+def gestion_Productos(request):
+    productos = VerProductos.objects.all()
+    context = {
+        "productos": productos,
+    }
+    return render(request, "gestion_Productos.html", context)
+
+@login_required
+def eliminar_producto(request, id):
+    producto = get_object_or_404(Producto, id=id)
+    producto.delete()
+    messages.success(request, "✅ Producto eliminado exitosamente.")
+    return redirect("Gestion-Productos")
+
+@login_required
+def agregar_producto(request):
+    if request.method == "POST":
+        nombre = request.POST.get("nombre")
+        if nombre:
+            Producto.objects.create(producto=nombre)
+    messages.success(request, "✅ Producto agregado exitosamente.") 
+    return redirect("Gestion-Productos")
+
+
+#Gestion de Administradores
+@login_required
+def gestion_Admins(request):
+    admins = VerAdminsInsta.objects.all()
+    context = {
+        'admins': admins
+    }
+    return render(request, "gestion_Administradores.html", context)
+
+@login_required
+#@transaction.atomic
+def crear_Admins(request):
+    """
+    if request.method == "POST":
+        nombre = request.POST.get("nombre")
+        apellido = request.POST.get("apellido")
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        id_insta = request.POST.get("instalacion")  # ID de la instalación seleccionada
+        try:
+            if User.objects.filter(username=email).exists():
+                messages.warning(request, "El correo ya está registrado.")
+                return redirect("Agregar-Admin")
+
+            user = User.objects.create_user(
+                username=f"{nombre}.{apellido}",
+                email=email,
+                password=password,
+                first_name=nombre,
+                last_name=apellido,
+            )
+
+            # ✅ Obtener la instalación seleccionada
+            instalacion = Instalacion.objects.get(id=id_insta)
+
+            # ✅ Mapear tipoInsta → idRol
+            if instalacion.tipoInsta == 1:
+                id_rol = 2  # AdminGranja
+                rol_texto = "Administrador de Granja"
+            elif instalacion.tipoInsta == 2:
+                id_rol = 3  # AdminBodega
+                rol_texto = "Administrador de Bodega"
+            else:
+                id_rol = 2
+                rol_texto = "Administrador (por defecto)"
+
+            # ✅ Crear relación en UsuarioRol
+            LV.UsuarioRol.objects.create(
+                idUserAuth=user,
+                idRol_id=id_rol,
+                idInsta_id=id_insta
+            )
+
+            messages.success(
+                request,
+                f"{rol_texto} registrado exitosamente en '{instalacion.instalacion}'."
+            )
+            return redirect("Agregar-Admin")
+
+        except Exception as e:
+            print("Error al registrar:", e)
+            messages.error(request, f"Ocurrió un error: {str(e)}")
+            return redirect("Agregar-Admin")
+
+    """
+
+    return render(request, "crear_Admins.html")
+
+
+def obtener_instalaciones(request):
+    tipo = request.GET.get("tipo")
+    data = []
+    match tipo:
+        case "Granja":
+            pendientes = VerGranjas.objects.filter(administrador="Pendiente")
+            data = [{"id": g.id, "instalacion": g.nombre} for g in pendientes]
+        case "Bodega":
+            pendientes = VerBodegas.objects.filter(administrador="Pendiente")
+            data = [{"id": b.id, "instalacion": b.nombre} for b in pendientes]
+    return JsonResponse(data, safe=False)
+
+@login_required
+def eliminar_admin(request, id_admin):
+    if request.method == "POST":
+        try:
+            with connection.cursor() as cursor:
+                cursor.callproc('eliminar_usuario', [id_admin])
+                messages.success(request, "Administrador eliminado correctamente.")
+        except Exception as e:
+            print("Error eliminando Administrador:", e)
+            return redirect("Gestion-Admins")
+    return redirect('Gestion-Admins') 
+
+
+#Gestion Bodegas
+@login_required
+def gestion_Bodegas(request):
+    bodegas = VerBodegas.objects.all()
+    context = {
+        "bodegas": bodegas,
+    }
+    return render(request, "gestion_Bodegas.html", context)
+
+@login_required
+def crear_Bodega(request):
+    # Obtener vegetales sin instalación asignada
+    vegetales_disponibles = Producto.objects.filter(id_instalacion__isnull=True)
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre')
+        direccion = request.POST.get('dirrecion')
+        vegetal_id = request.POST.get('vegetal')
+        if not nombre or not direccion or not vegetal_id:
+            messages.error(request, "⚠️ Por favor complete todos los campos.")
+            return redirect('Crear-Bodega')
+        nombre_limpio = nombre.strip().lower()
+        direccion_limpia = direccion.strip().lower()
+        # Validación de duplicados
+        if VerBodegas.objects.filter(nombre__iexact=nombre_limpio).exists():
+            messages.error(request, "❌ Ya existe una bodega con ese nombre.")
+            return redirect('Crear-Bodega')
+        elif VerBodegas.objects.filter(direccion__iexact=direccion_limpia).exists():
+            messages.error(request, "❌ Ya existe una bodega con esa dirección.")
+            return redirect('Crear-Bodega')
+        try:
+            with connection.cursor() as cursor:
+                # Crear la bodega con el procedimiento almacenado
+                cursor.callproc('agregar_instalacion', [nombre, direccion, 2, vegetal_id])
+            messages.success(
+                request,
+                f"✅ La Bodega '{nombre}' fue registrada correctamente."
+            )
+        except Exception as e:
+            messages.error(request, f"⚠️ Error al registrar: {e}")
+        return redirect('Crear-Bodega')
+    return render(request, 'crear_Bodega.html', {
+        'vegetales_disponibles': vegetales_disponibles
+    })
+
+@login_required
+def eliminar_Bodega(request, id):
+    try:
+        with connection.cursor() as cursor:
+            cursor.callproc('eliminar_instalacion', [id])
+        return JsonResponse({'status': 'ok'})
+    except Exception as e:
+        print("Error eliminando instalación:", e)
+        return JsonResponse({'status': 'error'}, status=500)

@@ -1,0 +1,336 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Panel de Control - Verduras S.A</title>
+    <style>
+      :root {
+        --orange: #ff9800;
+        --bg: #f5f5f6;
+        --card: #ffffff;
+        --muted: #666;
+        --radius: 10px;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: "Segoe UI", Roboto, Arial, sans-serif;
+      }
+      body {
+        background: var(--bg);
+        color: #222;
+        line-height: 1.4;
+      }
+
+      /* --- NAVBAR --- */
+      .navbar {
+        background-color: var(--orange);
+        color: white;
+        padding: 12px 30px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        position: relative;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+      }
+
+      .navbar img {
+        height: 80px;
+        width: auto;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 25px;
+        font-weight: bold;
+      }
+
+      .nav-links a {
+        color: white;
+        text-decoration: none;
+        transition: 0.3s;
+      }
+
+      .nav-links a:hover {
+        text-decoration: underline;
+      }
+
+      .menu-toggle {
+        display: none;
+        flex-direction: column;
+        cursor: pointer;
+        gap: 5px;
+      }
+
+      .menu-toggle div {
+        width: 25px;
+        height: 3px;
+        background-color: white;
+      }
+
+      /* --- MAIN --- */
+      .main {
+        padding: 28px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 22px;
+        align-items: start;
+      }
+
+      .card {
+        background: var(--card);
+        border-radius: var(--radius);
+        padding: 18px;
+        box-shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+        min-height: 150px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      .card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 10px 30px rgba(16, 24, 40, 0.08);
+      }
+
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+
+      .card-header h2 {
+        color: var(--orange);
+        font-size: 18px;
+        margin: 0;
+      }
+
+      .list-small {
+        margin: 10px 0 14px 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .list-small li {
+        padding: 8px 10px;
+        border-radius: 8px;
+        background: #fbfbfb;
+        margin-bottom: 8px;
+        font-size: 14px;
+        color: #333;
+        border: 1px solid rgba(0, 0, 0, 0.03);
+      }
+
+      .card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .btn {
+        border: 0;
+        padding: 8px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+
+      .btn-primary {
+        background: var(--orange);
+        color: #fff;
+      }
+
+      footer {
+        margin-top: 28px;
+        padding: 18px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      /* --- RESPONSIVE --- */
+      @media (max-width: 1100px) {
+        .grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .nav-links {
+          display: none;
+          flex-direction: column;
+          width: 100%;
+          background-color: var(--orange);
+          position: absolute;
+          top: 85px;
+          left: 0;
+          text-align: center;
+          padding: 10px 0;
+        }
+
+        .nav-links.active {
+          display: flex;
+        }
+
+        .menu-toggle {
+          display: flex;
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+      <img src="{% static 'img/Logo.png' %}" alt="Logo Verduras S.A" />
+      <div class="menu-toggle" onclick="toggleMenu()">
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+      <div class="nav-links" id="navLinks">
+        <a href="#">Informes</a>
+        <a href="#">Mapa</a>
+        <a href="{% url 'logout' %}">Cerrar sesión</a>
+      </div>
+    </nav>
+
+    <!-- CONTENIDO -->
+    <main class="main" id="top">
+      <section style="margin-bottom: 18px">
+        <h2 style="margin: 0 0 6px 0">Resumen rápido</h2>
+        <p style="color: var(--muted); margin: 0">
+          Accede rápidamente a los módulos principales.
+        </p>
+      </section>
+
+      <section class="grid" aria-label="Panel con secciones principales">
+        <!-- Granjas -->
+        <article class="card">
+          <div>
+            <div class="card-header"><h2>Granjas</h2></div>
+            <ul class="list-small">
+              {% for g in granjas %}
+              <li><strong>{{ g.nombre }}</strong> — {{ g.direccion }}</li>
+              {% empty %}
+              <li>No hay granjas registradas</li>
+              {% endfor %}
+            </ul>
+          </div>
+          <div class="card-footer">
+            <form action="{% url 'Gestion-Granjas' %}" method="post">
+              {% csrf_token %}
+              <button class="btn btn-primary">Gestionar</button>
+            </form>
+          </div>
+        </article>
+
+        <!-- Bodegas -->
+        <article class="card">
+          <div>
+            <div class="card-header"><h2>Bodegas</h2></div>
+            <ul class="list-small">
+              {% for b in bodegas %}
+              <li><strong>{{ b.nombre }}</strong> — {{ b.direccion }}</li>
+              {% empty %}
+              <li>No hay bodegas registradas</li>
+              {% endfor %}
+            </ul>
+          </div>
+          <div class="card-footer">
+            <form action="{% url 'Gestion-Bodegas' %}" method="post">
+              {% csrf_token %}
+              <button class="btn btn-primary">Gestionar</button>
+            </form>
+          </div>
+        </article>
+
+        <!-- Administradores -->
+        <article class="card">
+          <div>
+            <div class="card-header"><h2>Administradores</h2></div>
+            <ul class="list-small">
+              {% for a in admins %}
+              <li><strong>{{ a.nombre_completo }}</strong> — {{ a.tipo }}</li>
+              {% empty %}
+              <li>No hay administradores registrados</li>
+              {% endfor %}
+            </ul>
+          </div>
+          <div class="card-footer">
+            <form action="{% url 'Gestion-Admins' %}" method="post">
+              {% csrf_token %}
+              <button class="btn btn-primary">Gestionar</button>
+            </form>
+          </div>
+        </article>
+
+        <!-- Coordinadores -->
+        <article class="card">
+          <div>
+            <div class="card-header"><h2>Coordinadores</h2></div>
+            <ul class="list-small">
+              {% for c in coords %}
+              <li><strong>{{ c.nombre_completo }}</strong> — {{ c.tipo }}</li>
+              {% empty %}
+              <li>No hay coordinadores registrados</li>
+              {% endfor %}
+            </ul>
+          </div>
+          <div class="card-footer">
+            <form action="{% url 'Vista-Coords' %}" method="post">
+              {% csrf_token %}
+              <button class="btn btn-primary">Ver más</button>
+            </form>
+          </div>
+        </article>
+
+        <!-- Productos -->
+        <article class="card">
+          <div>
+            <div class="card-header"><h2>Productos</h2></div>
+            <ul class="list-small">
+              {% for p in productos %}
+              <li><strong>{{ p.nombre_producto }}</strong></li>
+              {% empty %}
+              <li>No hay productos registrados</li>
+              {% endfor %}
+            </ul>
+          </div>
+          <div class="card-footer">
+            <form action="{% url 'Gestion-Productos' %}" method="post">
+              {% csrf_token %}
+              <button class="btn btn-primary">Gestionar</button>
+            </form>
+          </div>
+        </article>
+      </section>
+
+      <footer>
+        &copy; <strong>Verduras S.A</strong> — Panel Gerencial · Todos los
+        derechos reservados
+      </footer>
+    </main>
+
+    <script>
+      function toggleMenu() {
+        document.getElementById("navLinks").classList.toggle("active");
+      }
+    </script>
+  </body>
+</html>

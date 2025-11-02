@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Escáner de Placas - Verduras S.A</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: #f7f7f7;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      color: #222;
+    }
+
+    h1 {
+      color: #ff8800;
+      margin-bottom: 20px;
+    }
+
+    video {
+      width: 90%;
+      max-width: 500px;
+      border-radius: 12px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+      background: black;
+    }
+
+    button {
+      margin-top: 20px;
+      background: #ff8800;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #e67400;
+    }
+  </style>
+</head>
+<body>
+  <h1>Escáner de Placas</h1>
+  <video id="camera" autoplay playsinline></video>
+  <button onclick="escanearPlaca()">Escanear Placa</button>
+  <form action="{% url 'Coord-Granja' %}" method="post">
+    {% csrf_token %}
+    <button type="submit">Volver</button>
+  </form>
+  <script>
+    const video = document.getElementById('camera');
+
+    // Solicita acceso a la cámara del dispositivo
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => { video.srcObject = stream; })
+      .catch(err => { alert('No se pudo acceder a la cámara: ' + err.message); });
+
+    // Simula el escaneo de la placa
+    function escanearPlaca() {
+      alert("Escaneando placa...");
+      // Aquí podrías añadir lógica para capturar una imagen y procesarla con OCR
+    }
+  </script>
+</body>
+</html>
