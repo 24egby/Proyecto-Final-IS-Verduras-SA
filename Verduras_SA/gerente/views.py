@@ -4,8 +4,7 @@ from .models import VerGranjas, VerBodegas, VerAdmins, VerCoords, VerProductos, 
 from django.contrib import messages
 from django.db import connection
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
+
 
 @login_required
 def home_gerente(request):
@@ -54,11 +53,11 @@ def crear_Granja(request):
         elif VerGranjas.objects.filter(direccion__iexact=dirrecion_limpia).exists():
             messages.error(request, "❌ Ya existe una granja con esa dirrecion.")
             return redirect('Crear-Granja')
-        
+
         # Crear registro si todo es válido
         try:
             with connection.cursor() as cursor:
-                cursor.callproc('agregar_instalacion', [nombre, dirrecion, 1])
+                cursor.callproc('agregar_instalacion', [nombre, dirrecion, 1, 0])
             messages.success(request, f"✅ La granja '{nombre}' fue registrada correctamente.")
         except Exception as e:
             messages.error(request, f"⚠️ Error al registrar: {e}")
@@ -67,8 +66,6 @@ def crear_Granja(request):
 
     return render(request, 'crear_Granja.html')
 
-@csrf_exempt  
-@require_POST
 @login_required
 def eliminar_Granja(request, id):
     try:
@@ -78,6 +75,29 @@ def eliminar_Granja(request, id):
     except Exception as e:
         print("Error eliminando instalación:", e)
         return JsonResponse({'status': 'error'}, status=500)
+
+@login_required
+def editar_granja(request, id):
+    granja = get_object_or_404(VerGranjas, id=id)
+    return render(request, 'editar_Granja.html', {'granja': granja})
+
+@login_required
+def actualizar_granja(request, id):
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre')
+        direccion = request.POST.get('dirrecion')
+        estado = request.POST.get('estado')
+        if not nombre or not direccion or not estado:
+            messages.error(request, "⚠️ Por favor complete todos los campos.")
+            return redirect('Editar-Granja', id=id)
+        
+        try:
+            with connection.cursor() as cursor:
+                cursor.callproc('actualizar_granja', [id, nombre, direccion, estado])
+            messages.success(request, f"✅ La granja '{nombre}' fue actualizada correctamente.")
+        except Exception as e:
+            messages.error(request, f"⚠️ Error al actualizar: {e}")
+        return redirect('Editar-Granja', id)
 
 
 #Vista de Coordinadores
@@ -180,10 +200,9 @@ def crear_Admins(request):
             return redirect("Agregar-Admin")
 
     """
-
     return render(request, "crear_Admins.html")
 
-
+@login_required
 def obtener_instalaciones(request):
     tipo = request.GET.get("tipo")
     data = []
@@ -262,3 +281,32 @@ def eliminar_Bodega(request, id):
     except Exception as e:
         print("Error eliminando instalación:", e)
         return JsonResponse({'status': 'error'}, status=500)
+
+@login_required
+def editar_Bodega(request, id):
+    bodega = get_object_or_404(VerBodegas, id=id)
+    productos = Producto.objects.filter(id_instalacion__isnull=True)
+    return render(request, 'editar_bodega.html', {
+        'bodega': bodega,
+        'productos': productos
+    })
+
+@login_required
+def actualizar_Bodega(request, id):
+    if request.method == 'POST':
+        nombre = request.POST.get("nombre")
+        direccion = request.POST.get("direccion")
+        producto = request.POST.get("producto")
+        estado = request.POST.get("estado")
+        
+        if not nombre or not direccion or not estado or not producto:
+            messages.error(request, "⚠️ Por favor complete todos los campos.")
+            return redirect('Editar-Bodega', id=id)
+        
+        try:
+            with connection.cursor() as cursor:
+                cursor.callproc('actualizar_bodega', [id, nombre, direccion, estado, producto])
+            messages.success(request, f"✅ La bodega '{nombre}' fue actualizada correctamente.")
+        except Exception as e:
+            messages.error(request, f"⚠️ Error al actualizar: {e}")
+        return redirect('Editar-Bodega', id)

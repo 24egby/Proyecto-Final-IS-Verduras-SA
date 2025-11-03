@@ -9,6 +9,8 @@ urlpatterns = [
     path('Gestion-Granjas', VG.gestion_Granjas, name="Gestion-Granjas"),
     path('Gestion-Granjas/Crear-Granja', VG.crear_Granja, name="Crear-Granja"),
     path('Gestion-Granjas/Eliminar-Granja/<int:id>/', VG.eliminar_Granja, name='Eliminar-Granja'),
+    path('Gestion-Granjas/Editar-Granja/<int:id>/', VG.editar_granja, name='Editar-Granja'),
+    path('Gestion-Granjas/Actualizar-Granja/<int:id>/', VG.actualizar_granja, name='Actualizar-Granja'),
     
     #Gestion Admins
     path('Gestion-Admin', VG.gestion_Admins, name="Gestion-Admins"),
@@ -28,5 +30,7 @@ urlpatterns = [
     path('Gestion-Bodegas', VG.gestion_Bodegas, name="Gestion-Bodegas"),
     path('Gestion-Bodegas/Crear-Bodega', VG.crear_Bodega, name="Crear-Bodega"),
     path('Gestion-Bodegas/Eliminar-Bodega/<int:id>/', VG.eliminar_Granja, name='Eliminar-Bodega'),
+    path('Gestion-Bodegas/Editar-Bodega/<int:id>/', VG.editar_Bodega, name='Editar-Bodega'),
+    path('Gestion-Bodegas/Actualizar-Bodega/<int:id>/', VG.actualizar_Bodega, name='Actualizar-Bodega'),
     
 ]

@@ -283,8 +283,7 @@
     <div class="content">
       <div class="header">
         <h2>Granjas Registradas</h2>
-        <form action="{% url 'Crear-Granja' %}" method="post">
-          {% csrf_token %}
+        <form action="{% url 'Crear-Granja' %}" method="get">
           <button class="btn-agregar">➕ Agregar Granja</button>
         </form>
       </div>
@@ -293,7 +292,7 @@
         {% for g in granjas %}
         <li
           class="farm-item"
-          onclick="abrirModal('{{ g.id }}', '{{ g.nombre }}', '{{ g.direccion }}', '{{ g.administrador }}')"
+          onclick="abrirModal('{{ g.id }}', '{{ g.nombre }}', '{{ g.direccion }}', '{{ g.administrador }}', '{{ g.estado }}')"
         >
           <h3>{{ g.nombre }}</h3>
         </li>
@@ -313,9 +312,12 @@
         <div class="modal-body">
           <p><b>Ubicación:</b> <span id="modalUbicacion"></span></p>
           <p><b>Administrador:</b> <span id="modalEncargado"></span></p>
+          <p><b>Estado:</b> <span id="modalEstado"></span></p>
         </div>
         <div class="modal-buttons">
-          <button class="btn btn-editar">Editar</button>
+          <button class="btn btn-editar" onclick="editarGranja()">
+            Editar
+          </button>
           <button class="btn btn-eliminar" onclick="eliminarGranja()">
             Eliminar
           </button>
@@ -328,15 +330,17 @@
       const modalNombre = document.getElementById("modalNombre");
       const modalUbicacion = document.getElementById("modalUbicacion");
       const modalEncargado = document.getElementById("modalEncargado");
+      const modalEstado = document.getElementById("modalEstado");
       const navLinks = document.getElementById("navLinks");
 
       let idActual = null;
 
-      function abrirModal(id, nombre, dirrecion, encargado) {
+      function abrirModal(id, nombre, dirrecion, encargado, estado) {
         idActual = id;
         modalNombre.textContent = nombre;
         modalUbicacion.textContent = dirrecion;
         modalEncargado.textContent = encargado;
+        modalEstado.textContent = estado;
         modal.style.display = "flex";
       }
 
@@ -364,13 +368,19 @@
         })
           .then((r) => {
             if (r.ok) {
-              alert("Granja Eliminada con éxito");
+              alert("Granja eliminada con éxito");
               location.reload();
             } else {
               alert("Error al eliminar la granja");
             }
           })
           .catch(() => alert("Error de conexión"));
+      }
+
+      // ✅ Redirige a la plantilla de edición
+      function editarGranja() {
+        if (!idActual) return;
+        window.location.href = `Gestion-Granjas/Editar-Granja/${idActual}/`;
       }
 
       function getCookie(name) {

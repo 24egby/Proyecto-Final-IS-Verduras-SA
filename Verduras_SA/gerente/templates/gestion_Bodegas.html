@@ -326,7 +326,9 @@
         </div>
         <div class="modal-buttons">
           <button class="btn btn-editar-camion">Gestión Camiones</button>
-          <button class="btn btn-editar">Editar</button>
+          <button class="btn btn-editar" onclick="redirigirEditar()">
+            Editar
+          </button>
           <button class="btn btn-eliminar" onclick="eliminarBodega()">
             Eliminar
           </button>
@@ -365,11 +367,16 @@
         if (event.target === modal) cerrarModal();
       };
 
+      function redirigirEditar() {
+        if (!idActual) return;
+        window.location.href = `Gestion-Bodegas/Editar-Bodega/${idActual}/`;
+      }
+
       function eliminarBodega() {
         if (!idActual) return;
         if (!confirm("¿Seguro que deseas eliminar esta bodega?")) return;
 
-        fetch(`Gestion-Bodegas/Eliminar-Bodega/${idActual}/`, {
+        fetch(`/Gestion-Bodegas/Eliminar-Bodega/${idActual}/`, {
           method: "POST",
           headers: {
             "X-CSRFToken": getCookie("csrftoken"),
