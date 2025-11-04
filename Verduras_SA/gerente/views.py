@@ -1,10 +1,10 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import VerGranjas, VerBodegas, VerAdmins, VerCoords, VerProductos, VerCoordsInsta, Producto, VerAdminsInsta
+from .models import VerGranjas, VerBodegas, VerAdmins, VerCoords, VerProductos, VerCoordsInsta, Producto, VerAdminsInsta, VerAdminsDetalle
 from django.contrib import messages
 from django.db import connection
 from django.http import JsonResponse
-
+from django.contrib.auth.hashers import make_password
 
 @login_required
 def home_gerente(request):
@@ -134,7 +134,6 @@ def agregar_producto(request):
     messages.success(request, "✅ Producto agregado exitosamente.") 
     return redirect("Gestion-Productos")
 
-
 #Gestion de Administradores
 @login_required
 def gestion_Admins(request):
@@ -145,61 +144,25 @@ def gestion_Admins(request):
     return render(request, "gestion_Administradores.html", context)
 
 @login_required
-#@transaction.atomic
 def crear_Admins(request):
-    """
     if request.method == "POST":
         nombre = request.POST.get("nombre")
         apellido = request.POST.get("apellido")
+        nombre_usuario = f"{nombre.title()}.{apellido.title()}"
         email = request.POST.get("email")
-        password = request.POST.get("password")
-        id_insta = request.POST.get("instalacion")  # ID de la instalación seleccionada
+        password = make_password(request.POST.get("password"))
+        tipo_instalacion = request.POST.get("tipo-instalacion")
+        id_insta = request.POST.get("instalacion")
         try:
-            if User.objects.filter(username=email).exists():
-                messages.warning(request, "El correo ya está registrado.")
-                return redirect("Agregar-Admin")
-
-            user = User.objects.create_user(
-                username=f"{nombre}.{apellido}",
-                email=email,
-                password=password,
-                first_name=nombre,
-                last_name=apellido,
-            )
-
-            # ✅ Obtener la instalación seleccionada
-            instalacion = Instalacion.objects.get(id=id_insta)
-
-            # ✅ Mapear tipoInsta → idRol
-            if instalacion.tipoInsta == 1:
-                id_rol = 2  # AdminGranja
-                rol_texto = "Administrador de Granja"
-            elif instalacion.tipoInsta == 2:
-                id_rol = 3  # AdminBodega
-                rol_texto = "Administrador de Bodega"
-            else:
-                id_rol = 2
-                rol_texto = "Administrador (por defecto)"
-
-            # ✅ Crear relación en UsuarioRol
-            LV.UsuarioRol.objects.create(
-                idUserAuth=user,
-                idRol_id=id_rol,
-                idInsta_id=id_insta
-            )
-
+            with connection.cursor() as cursor:
+                cursor.callproc('agregar_admin', [nombre.title(), apellido.title(), nombre_usuario, email, password, tipo_instalacion, id_insta])
             messages.success(
                 request,
-                f"{rol_texto} registrado exitosamente en '{instalacion.instalacion}'."
+                f"✅ Administrador '{nombre} {apellido}' fue registrado correctamente."
             )
-            return redirect("Agregar-Admin")
-
         except Exception as e:
-            print("Error al registrar:", e)
-            messages.error(request, f"Ocurrió un error: {str(e)}")
-            return redirect("Agregar-Admin")
-
-    """
+            messages.error(request, f"⚠️ Error al registrar: {e}")
+        return redirect('Agregar-Admin')
     return render(request, "crear_Admins.html")
 
 @login_required
@@ -226,6 +189,51 @@ def eliminar_admin(request, id_admin):
             print("Error eliminando Administrador:", e)
             return redirect("Gestion-Admins")
     return redirect('Gestion-Admins') 
+
+
+
+@login_required
+def actualizar_admin(request, id):
+    admin = get_object_or_404(VerAdminsDetalle, id=id)
+    
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre')
+        apellido = request.POST.get('apellido')
+        username = f"{nombre.title()}.{apellido.title()}"
+        correo = request.POST.get('email')
+        tipo_instalacion = request.POST.get('tipo-instalacion')
+        id_instalacion = request.POST.get('instalacion')
+        # Solo actualiza la contraseña si el campo no está vacío
+        nueva_pass = request.POST.get('password')
+        if nueva_pass:
+            password = make_password(nueva_pass)
+        else :
+            password = None
+        try:
+            with connection.cursor() as cursor:
+                # Crear la bodega con el procedimiento almacenado
+                cursor.callproc('actualizar_admin', [id, nombre, apellido, username, correo, tipo_instalacion, id_instalacion, password])
+            messages.success(request, "✅ Información del administrador actualizada correctamente.")
+        except Exception as e:
+            messages.error(request, f"⚠️ Error al actualizar: {e}")
+        
+        return redirect('Gestion-Admins')
+    # Renderizar plantilla con la información del admin
+    return render(request, 'editar_admin.html', {'admin': admin})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #Gestion Bodegas

@@ -17,6 +17,8 @@ urlpatterns = [
     path('Gestion-Admin/Agregar-Admin', VG.crear_Admins, name="Agregar-Admin"),
     path('Gestion-Admin/Obtener-Instalaciones/', VG.obtener_instalaciones, name='Obtener-Instalaciones'),
     path('Gestion-Admin/Eliminar-Admin/<int:id_admin>/', VG.eliminar_admin, name="Eliminar-Admin"),
+    path('Gestion-Admin/Actualizar-Admin/<int:id>/', VG.actualizar_admin, name='Actualizar-Admin'),
+
     
     #Vista Coords
     path('Vista-Coords', VG.vista_coordinadores, name="Vista-Coords"),

@@ -80,3 +80,23 @@ class Producto(models.Model):
         managed = False
     def __str__(self):
         return self.producto
+
+class VerAdminsDetalle(models.Model):
+    id = models.AutoField(primary_key=True)
+    nombre = models.CharField(max_length=150)
+    apellido = models.CharField(max_length=150)
+    usuario = models.CharField(max_length=150)
+    correo = models.EmailField(max_length=254)
+    tipo = models.CharField(max_length=50)
+    id_instalacion = models.IntegerField(null=True, blank=True)
+    nombre_instalacion = models.CharField(max_length=150, null=True, blank=True)
+    tipo_instalacion = models.CharField(max_length=50, null=True, blank=True)
+
+    class Meta:
+        managed = False  # Django no intentará crear ni modificar la vista
+        db_table = 'info_admin'  # Nombre exacto de la vista en MySQL
+        verbose_name = 'Administrador Detalle'
+        verbose_name_plural = 'Administradores Detalle'
+
+    def __str__(self):
+        return f"{self.nombre} {self.apellido} ({self.tipo})"

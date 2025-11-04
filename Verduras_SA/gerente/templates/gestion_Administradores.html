@@ -293,7 +293,7 @@
     <div class="content">
       <div class="header">
         <h2>Administradores Registrados</h2>
-        <form action="{% url 'Agregar-Admin' %}" method="post">
+        <form action="{% url 'Agregar-Admin' %}" method="get">
           {% csrf_token %}
           <button class="btn-agregar" type="submit">
             ➕ Agregar Administrador
@@ -323,17 +323,15 @@
         <li
           class="admin-item"
           onclick="abrirModal(
-          '{{ admin.nombre_completo }}',
-          '{{ admin.correo }}',
-          '{{admin.tipo}}',
-          '{{ admin.lugar_trabajo }}',
-          '{{ admin.id }}'
-        )"
+        '{{ admin.nombre_completo }}',
+        '{{ admin.correo }}',
+        '{{ admin.tipo }}',
+        '{{ admin.lugar_trabajo }}',
+        '{{ admin.id }}'
+      )"
         >
-          <h3>
-            {{ admin.nombre_completo }} 
-          </h3>
-          <p><strong>Rol:</strong>{{admin.tipo}}</p>
+          <h3>{{ admin.nombre_completo }}</h3>
+          <p><strong>Rol:</strong> {{ admin.tipo }}</p>
         </li>
         {% empty %}
         <li>No hay Administradores registrados</li>
@@ -354,7 +352,7 @@
           <p><b>Lugar de trabajo:</b> <span id="modalRegion"></span></p>
         </div>
         <div class="modal-buttons">
-          <button class="btn btn-editar">Editar</button>
+          <button class="btn btn-editar" onclick="editarAdmin()">Editar</button>
           <button class="btn btn-eliminar" onclick="eliminarAdmin()">
             Eliminar
           </button>
@@ -412,6 +410,13 @@
           document.body.appendChild(form);
           form.submit();
         }
+      }
+
+      // ✅ NUEVA FUNCIÓN: REDIRECCIÓN AL FORMULARIO DE EDICIÓN
+      function editarAdmin() {
+        if (!adminIdSeleccionado) return;
+        cerrarModal();
+        window.location.href = `Gestion-Admin/Actualizar-Admin/${adminIdSeleccionado}/`;
       }
     </script>
   </body>
