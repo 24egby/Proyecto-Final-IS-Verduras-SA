@@ -1,10 +1,11 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import VerGranjas, VerBodegas, VerAdmins, VerCoords, VerProductos, VerCoordsInsta, Producto, VerAdminsInsta, VerAdminsDetalle
+from .models import VerGranjas, VerBodegas, VerAdmins, VerCoords, VerProductos, VerCoordsInsta, Producto, VerAdminsInsta, VerAdminsDetalle, VerCamiones
 from django.contrib import messages
 from django.db import connection
 from django.http import JsonResponse
 from django.contrib.auth.hashers import make_password
+from django.views.decorators.csrf import csrf_exempt
 
 @login_required
 def home_gerente(request):
@@ -99,7 +100,6 @@ def actualizar_granja(request, id):
             messages.error(request, f"⚠️ Error al actualizar: {e}")
         return redirect('Editar-Granja', id)
 
-
 #Vista de Coordinadores
 @login_required 
 def vista_coordinadores(request):
@@ -108,7 +108,6 @@ def vista_coordinadores(request):
         "coords": coords,
     })
     
-
 #Gestion de Productos
 @login_required
 def gestion_Productos(request):
@@ -190,12 +189,9 @@ def eliminar_admin(request, id_admin):
             return redirect("Gestion-Admins")
     return redirect('Gestion-Admins') 
 
-
-
 @login_required
 def actualizar_admin(request, id):
     admin = get_object_or_404(VerAdminsDetalle, id=id)
-    
     if request.method == 'POST':
         nombre = request.POST.get('nombre')
         apellido = request.POST.get('apellido')
@@ -218,23 +214,7 @@ def actualizar_admin(request, id):
             messages.error(request, f"⚠️ Error al actualizar: {e}")
         
         return redirect('Gestion-Admins')
-    # Renderizar plantilla con la información del admin
     return render(request, 'editar_admin.html', {'admin': admin})
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 #Gestion Bodegas
 @login_required
@@ -318,3 +298,33 @@ def actualizar_Bodega(request, id):
         except Exception as e:
             messages.error(request, f"⚠️ Error al actualizar: {e}")
         return redirect('Editar-Bodega', id)
+    
+# Gestion Camiones
+@login_required
+def gestion_Camiones(request, id): 
+    camiones = VerCamiones.objects.filter(id_instalacion=id) 
+    return render(request, 'gestion_Camiones.html', {'camiones': camiones, 'id_instalacion':id})
+
+@login_required
+def agregar_camion(request):
+    if request.method == 'POST':
+        placa = request.POST.get('placa')
+        id_instalacion = request.POST.get('id_instalacion')
+        try:
+            with connection.cursor() as cursor:
+                cursor.callproc('agregar_camion', [placa, id_instalacion])
+            messages.success(request, f"Camión {placa} agregado correctamente.")
+        except Exception as e:
+            messages.error(request, f"Error al agregar camión: {e}")
+        return redirect('Gestion-Camiones', id=id_instalacion)
+
+@csrf_exempt
+def eliminar_Camion(request, id):
+    if request.method == 'POST':
+        try:
+            with connection.cursor() as cursor:
+                cursor.callproc('eliminar_camion', [id])
+            return JsonResponse({'message': 'Camión eliminado correctamente.'}, status=200)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    return JsonResponse({'error': 'Método no permitido.'}, status=405)

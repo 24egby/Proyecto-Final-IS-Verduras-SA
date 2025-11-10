@@ -34,5 +34,8 @@ urlpatterns = [
     path('Gestion-Bodegas/Eliminar-Bodega/<int:id>/', VG.eliminar_Granja, name='Eliminar-Bodega'),
     path('Gestion-Bodegas/Editar-Bodega/<int:id>/', VG.editar_Bodega, name='Editar-Bodega'),
     path('Gestion-Bodegas/Actualizar-Bodega/<int:id>/', VG.actualizar_Bodega, name='Actualizar-Bodega'),
-    
+    path('Gestion-Bodegas/Gestion-Camiones/<int:id>/', VG.gestion_Camiones, name='Gestion-Camiones'),
+    path('Gestion-Bodegas/Gestion-Camiones/Agregar-Camion/', VG.agregar_camion, name='Agregar-Camion'),
+    path('Gestion-Bodegas/Gestion-Camiones/Eliminar-Camion/<int:id>/', VG.eliminar_Camion, name='Eliminar-Camion'),
+
 ]

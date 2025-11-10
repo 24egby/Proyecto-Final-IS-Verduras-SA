@@ -4,8 +4,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bodegas - Verduras S.A</title>
+    <title>Camiones - Verduras S.A</title>
     <style>
+      /* --- MISMO DISEÑO QUE GESTIÓN DE BODEGAS --- */
+
       * {
         margin: 0;
         padding: 0;
@@ -125,6 +127,7 @@
         font-size: 1.1rem;
       }
 
+      /* --- MODALES --- */
       .modal {
         display: none;
         position: fixed;
@@ -176,9 +179,33 @@
         cursor: pointer;
       }
 
-      .modal-body p {
-        color: #444;
-        margin: 8px 0;
+      .modal-body label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+
+      .modal-body input {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+      }
+
+      .modal-body button {
+        width: 100%;
+        background-color: #ff8800;
+        color: white;
+        border: none;
+        padding: 10px;
+        border-radius: 6px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      .modal-body button:hover {
+        background-color: #e57700;
       }
 
       .modal-buttons {
@@ -196,27 +223,9 @@
         font-weight: bold;
       }
 
-      .btn-editar {
-        background-color: #007bff;
-        color: white;
-      }
-
-      .btn-editar-camion {
-        background-color: #1ae000ff;
-        color: white;
-      }
-
       .btn-eliminar {
         background-color: #dc3545;
         color: white;
-      }
-
-      .btn-editar:hover {
-        background-color: #0069d9;
-      }
-
-      .btn-editar-camion:hover {
-        background-color: #1bcc03ff;
       }
 
       .btn-eliminar:hover {
@@ -290,75 +299,92 @@
 
     <div class="content">
       <div class="header">
-        <h2>Bodegas Registradas</h2>
-        <form action="{% url 'Crear-Bodega' %}" method="post">
-          {% csrf_token %}
-          <button class="btn-agregar">➕ Agregar Bodega</button>
-        </form>
+        <h2>Camiones Registrados</h2>
+        <button class="btn-agregar" onclick="abrirModalAgregar()">
+          🚚 Agregar Camión
+        </button>
       </div>
-
       <ul class="farm-list">
-        {% for b in bodegas %}
+        {% for c in camiones %}
         <li
           class="farm-item"
-          onclick="abrirModal('{{ b.id }}', '{{ b.nombre }}', '{{ b.direccion }}', '{{ b.administrador }}', '{{ b.producto }}')"
+          onclick="abrirModal('{{ c.id }}', '{{ c.placa }}', '{{ c.estado }}')"
         >
-          <h3>{{ b.nombre }}</h3>
-          <p><b>{{ b.producto }}</b></p>
+          <h3>{{ c.placa }}</h3>
+          <p><b>{{ c.estado }}</b></p>
         </li>
         {% empty %}
-        <li>No hay bodegas registradas</li>
+        <li>No hay camiones registrados</li>
         {% endfor %}
       </ul>
     </div>
 
-    <!-- MODAL -->
+    <!-- MODAL VER/ELIMINAR -->
     <div class="modal" id="modalFarm">
       <div class="modal-content">
         <div class="modal-header">
-          <h3 id="modalNombre">Nombre</h3>
+          <h3 id="modalPlaca">Placa</h3>
           <button class="close-btn" onclick="cerrarModal()">✖</button>
         </div>
         <div class="modal-body">
-          <p><b>Ubicación:</b> <span id="modalUbicacion"></span></p>
-          <p><b>Encargado:</b> <span id="modalEncargado"></span></p>
-          <p><b>Producto:</b> <span id="modalProducto"></span></p>
+          <p><b>Estado:</b> <span id="modalEstado"></span></p>
         </div>
         <div class="modal-buttons">
-          <button class="btn btn-editar-camion" onclick="redirigirCamiones()">
-            Gestión Camiones
-          </button>
-          <button class="btn btn-editar" onclick="redirigirEditar()">
-            Editar
-          </button>
-          <button class="btn btn-eliminar" onclick="eliminarBodega()">
+          <button class="btn btn-eliminar" onclick="eliminarCamion()">
             Eliminar
           </button>
         </div>
       </div>
     </div>
 
+    <!-- MODAL AGREGAR CAMIÓN -->
+    <div class="modal" id="modalAgregar">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Agregar Camión</h3>
+          <button class="close-btn" onclick="cerrarModalAgregar()">✖</button>
+        </div>
+        <div class="modal-body">
+          <form method="POST" action="{% url 'Agregar-Camion' %}">
+            {% csrf_token %}
+            <input
+              type="hidden"
+              name="id_instalacion"
+              value="{{ id_instalacion }}"
+            />
+            <label for="placa">Placa del camión:</label>
+            <input type="text" name="placa" id="placa" required />
+            <button type="submit">Guardar</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
     <script>
       const modal = document.getElementById("modalFarm");
-      const modalNombre = document.getElementById("modalNombre");
-      const modalUbicacion = document.getElementById("modalUbicacion");
-      const modalEncargado = document.getElementById("modalEncargado");
-      const modalProducto = document.getElementById("modalProducto");
+      const modalAgregar = document.getElementById("modalAgregar");
+      const modalPlaca = document.getElementById("modalPlaca");
+      const modalEstado = document.getElementById("modalEstado");
       const navLinks = document.getElementById("navLinks");
-
       let idActual = null;
 
-      function abrirModal(id, nombre, ubicacion, encargado, producto) {
+      function abrirModal(id, placa, estado) {
         idActual = id;
-        modalNombre.textContent = nombre;
-        modalUbicacion.textContent = ubicacion;
-        modalEncargado.textContent = encargado;
-        modalProducto.textContent = producto;
+        modalPlaca.textContent = placa;
+        modalEstado.textContent = estado;
         modal.style.display = "flex";
       }
 
       function cerrarModal() {
         modal.style.display = "none";
+      }
+
+      function abrirModalAgregar() {
+        modalAgregar.style.display = "flex";
+      }
+
+      function cerrarModalAgregar() {
+        modalAgregar.style.display = "none";
       }
 
       function toggleMenu() {
@@ -367,35 +393,23 @@
 
       window.onclick = function (event) {
         if (event.target === modal) cerrarModal();
+        if (event.target === modalAgregar) cerrarModalAgregar();
       };
 
-      function redirigirEditar() {
+      function eliminarCamion() {
         if (!idActual) return;
-        window.location.href = `Gestion-Bodegas/Editar-Bodega/${idActual}/`;
-      }
-
-      function redirigirCamiones() {
-        if (!idActual) return;
-        // Redirige a la página de gestión de camiones de esa bodega
-        window.location.href = `Gestion-Bodegas/Gestion-Camiones/${idActual}/`;
-      }
-
-      function eliminarBodega() {
-        if (!idActual) return;
-        if (!confirm("¿Seguro que deseas eliminar esta bodega?")) return;
-
-        fetch(`/Gestion-Bodegas/Eliminar-Bodega/${idActual}/`, {
+        if (!confirm("¿Seguro que deseas eliminar este camión?")) return;
+        const baseUrl = "{% url 'Eliminar-Camion' 0 %}".replace("0", idActual);
+        fetch(baseUrl, {
           method: "POST",
-          headers: {
-            "X-CSRFToken": getCookie("csrftoken"),
-          },
+          headers: { "X-CSRFToken": getCookie("csrftoken") },
         })
           .then((r) => {
             if (r.ok) {
-              alert("Bodega eliminada con éxito");
+              alert("Camión eliminado con éxito");
               location.reload();
             } else {
-              alert("Error al eliminar la bodega");
+              alert("Error al eliminar el camión");
             }
           })
           .catch(() => alert("Error de conexión"));
