@@ -42,7 +42,7 @@ def gestion_empleados(request):
     user_id = user.id 
     id_insta = obtener_id_instalacion(user_id)
     empleados = VerEmpleados.objects.filter(id_instalacion=id_insta)
-    return render(request, "gestion_Empleados.html", {'empleados':empleados})
+    return render(request, "gestion_Empleados_B.html", {'empleados':empleados})
 
 @login_required
 def crear_Empleado(request):
@@ -64,22 +64,22 @@ def crear_Empleado(request):
             messages.success(request, f"✅ Empleado '{nombre} {apellido}' fue registrado correctamente.")
         except Exception as e:
             messages.error(request, f"⚠️ Error al registrar: {e}")
-        return redirect('Gestion-Empleados')
+        return redirect('Gestion-Empleados-B')
     
     print(sin_coordinador)
-    return render(request, 'crear_empleados.html', {'sin_coordinador': sin_coordinador})
+    return render(request, 'crear_empleados_B.html', {'sin_coordinador': sin_coordinador})
 
 @login_required
-def eliminar_Empleado(request, id_admin):
+def eliminar_Empleado(request, id):
     if request.method == "POST":
         try:
             with connection.cursor() as cursor:
-                cursor.callproc('eliminar_usuario', [id_admin])
+                cursor.callproc('eliminar_usuario', [id])
                 messages.success(request, "Empleado eliminado correctamente.")
         except Exception as e:
             messages.error(request, f"Error: {e}")
-            return redirect("Gestion-Empleados")
-    return redirect('Gestion-Empleados') 
+            return redirect("Gestion-Empleados-B")
+    return redirect('Gestion-Empleados-B') 
 
 @login_required
 def actualizar_Empleado(request, id):
@@ -107,6 +107,6 @@ def actualizar_Empleado(request, id):
         except Exception as e:
             messages.error(request, f"⚠️ Error al actualizar: {e}")
         
-        return redirect('Actualizar-Empleado', id)
+        return redirect('Actualizar-Empleado-B', id)
         
-    return render(request, 'editar_Empleado.html', {'empleado': empleado, 'sin_coordinador':sin_coordinador})
+    return render(request, 'editar_Empleado_B.html', {'empleado': empleado, 'sin_coordinador':sin_coordinador})

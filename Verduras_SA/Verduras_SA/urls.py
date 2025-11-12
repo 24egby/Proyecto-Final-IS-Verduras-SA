@@ -26,7 +26,7 @@ urlpatterns = [
     
     path('Gerente/',include("gerente.urls")),
     path('Admin-Bodega/',include("administradorBodega.urls")),
-    #path('Admin-Granja/',include("administradorGranja.urls")),
+    path('Admin-Granja/',include("administradorGranja.urls")),
     #path('Coord-Granja/',include("coordinadorGranja.urls")),
     #path('Coord-Bodega/',include("coordinadorBodega.urls")),
     #path('Emple-Bodega/',include("empleadoBodega.urls")),

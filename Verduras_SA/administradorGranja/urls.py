@@ -1,14 +1,14 @@
 from django.urls import path
-import administradorBodega.views as VAB
+import administradorGranja.views as VAG
 
 #Rutas Gerente
 urlpatterns = [
-    path('', VAB.home_admin_bodega, name="Admin-Bodega"),
+    path('', VAG.home_admin_granja, name="Admin-Granja"),
     
     #Gestion Empleados
-    path('Gestion-Empleados', VAB.gestion_empleados, name="Gestion-Empleados"),
-    path('Gestion-Empleados/Agregar-Empleado', VAB.crear_Empleado, name="Agregar-Empleado"),
-    path('Gestion-Empleados/Eliminar-Empleado/<int:id_admin>/', VAB.eliminar_Empleado, name="Eliminar-Empleado"),
-    path('Gestion-Empleados/Actualizar-Empleado/<int:id>/', VAB.actualizar_Empleado, name='Actualizar-Empleado'),
+    path('Gestion-Empleados', VAG.gestion_empleados, name="Gestion-Empleados-G"),
+    path('Gestion-Empleados/Agregar-Empleado', VAG.crear_Empleado, name="Agregar-Empleado-G"),
+    path('Gestion-Empleados/Eliminar-Empleado/<int:id_admin>/', VAG.eliminar_Empleado, name="Eliminar-Empleado-G"),
+    path('Gestion-Empleados/Actualizar-Empleado/<int:id>/', VAG.actualizar_Empleado, name='Actualizar-Empleado-G'),
 
 ]

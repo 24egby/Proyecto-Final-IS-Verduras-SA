@@ -4,7 +4,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Administrador de Granja y Bodega - Verduras S.A</title>
+    <title>Administrador de Bodega - Verduras S.A</title>
     <style>
       :root {
         --orange: #ff8800;
@@ -173,7 +173,7 @@
       <img src="{% static 'img/Logo.png' %}" alt="Logo Verduras S.A" />
       <div class="nav-links">
         <a href="{% url 'Admin-Bodega' %}">Inicio</a>
-        <a href="{% url 'Gestion-Empleados' %}">Empleados</a>
+        <a href="{% url 'Gestion-Empleados-B' %}">Empleados</a>
         <a href="#">Informes</a>
         <a href="{% url 'logout' %}">Cerrar sesión</a>
       </div>
@@ -192,7 +192,7 @@
             Administre los empleados de su granja o bodega. Puede agregar,
             editar o eliminar registros.
           </p>
-          <form action="{% url 'Gestion-Empleados' %}" method="post">
+          <form action="{% url 'Gestion-Empleados-B' %}" method="post">
             {% csrf_token %}
             <button class="btn">Ver empleados</button>
           </form>

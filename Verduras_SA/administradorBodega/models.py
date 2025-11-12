@@ -8,7 +8,7 @@ class VerEmpleados(models.Model):
     id_instalacion = models.IntegerField()
     class Meta:
         managed = False
-        db_table = 'ver_empleados'
+        db_table = 'ver_empleados_b'
         
 class VerEmpleadosDetallados(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -19,4 +19,4 @@ class VerEmpleadosDetallados(models.Model):
     id_instalacion = models.IntegerField()
     class Meta:
         managed = False
-        db_table = 'ver_empleados_detallados'
+        db_table = 'ver_empleados_detallados_b'

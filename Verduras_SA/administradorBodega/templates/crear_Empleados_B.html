@@ -193,7 +193,7 @@
         {% endif %}
 
         <!-- FORMULARIO -->
-        <form action="{% url 'Agregar-Empleado' %}" method="post" novalidate>
+        <form action="{% url 'Agregar-Empleado-B' %}" method="post" novalidate>
           {% csrf_token %}
 
           <div class="field">
@@ -264,7 +264,7 @@
           </div>
         </form>
 
-        <form action="{% url 'Gestion-Empleados' %}">
+        <form action="{% url 'Gestion-Empleados-B' %}">
           <button type="submit" class="btn">
             🏠 Volver a la página Principal
           </button>

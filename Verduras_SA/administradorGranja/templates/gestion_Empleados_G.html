@@ -282,7 +282,7 @@
         <div></div>
       </div>
       <div class="nav-links" id="navLinks">
-        <a href="{% url 'Admin-Bodega' %}">Inicio</a>
+        <a href="{% url 'Admin-Granja' %}">Inicio</a>
         <a href="#">Informes</a>
         <a href="{% url 'logout' %}">Cerrar sesión</a>
       </div>
@@ -292,7 +292,7 @@
     <div class="content">
       <div class="header">
         <h2>Empleados Registrados</h2>
-        <form action="{% url 'Agregar-Empleado' %}" method="get" novalidate>
+        <form action="{% url 'Agregar-Empleado-G' %}" method="get" novalidate>
           {% csrf_token %}
           <button class="btn-agregar" type="submit">➕ Agregar Empleado</button>
         </form>

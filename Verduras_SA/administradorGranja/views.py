@@ -31,8 +31,8 @@ def verificar_coordinador(id_insta):
         return 0
 
 @login_required
-def home_admin_bodega(request):
-    return render(request, "home_admin_bodega.html")
+def home_admin_granja(request):
+    return render(request, "home_admin_granja.html")
 
 
 #Gestion de Empleados
@@ -42,7 +42,7 @@ def gestion_empleados(request):
     user_id = user.id 
     id_insta = obtener_id_instalacion(user_id)
     empleados = VerEmpleados.objects.filter(id_instalacion=id_insta)
-    return render(request, "gestion_Empleados.html", {'empleados':empleados})
+    return render(request, "gestion_Empleados_G.html", {'empleados':empleados})
 
 @login_required
 def crear_Empleado(request):
@@ -60,14 +60,14 @@ def crear_Empleado(request):
         cargo = request.POST.get("cargo")
         try:
             with connection.cursor() as cursor:
-                cursor.callproc('agregar_empleado_bodega', [nombre.title(), apellido.title(), nombre_usuario, email, password,cargo ,id_insta])
+                cursor.callproc('agregar_empleado_granja', [nombre.title(), apellido.title(), nombre_usuario, email, password,cargo ,id_insta])
             messages.success(request, f"✅ Empleado '{nombre} {apellido}' fue registrado correctamente.")
         except Exception as e:
             messages.error(request, f"⚠️ Error al registrar: {e}")
-        return redirect('Gestion-Empleados')
+        return redirect('Gestion-Empleados-G')
     
     print(sin_coordinador)
-    return render(request, 'crear_empleados.html', {'sin_coordinador': sin_coordinador})
+    return render(request, 'crear_empleados_G.html', {'sin_coordinador': sin_coordinador})
 
 @login_required
 def eliminar_Empleado(request, id_admin):
@@ -78,8 +78,8 @@ def eliminar_Empleado(request, id_admin):
                 messages.success(request, "Empleado eliminado correctamente.")
         except Exception as e:
             messages.error(request, f"Error: {e}")
-            return redirect("Gestion-Empleados")
-    return redirect('Gestion-Empleados') 
+            return redirect("Gestion-Empleados-G")
+    return redirect('Gestion-Empleados-G') 
 
 @login_required
 def actualizar_Empleado(request, id):
@@ -102,11 +102,11 @@ def actualizar_Empleado(request, id):
         try:
             with connection.cursor() as cursor:
                 # Crear la bodega con el procedimiento almacenado
-                cursor.callproc('actualizar_empleado_bodega', [id, nombre, apellido, username, correo, tipo_empleado, password, id_insta])
+                cursor.callproc('actualizar_empleado_granja', [id, nombre, apellido, username, correo, tipo_empleado, password, id_insta])
             messages.success(request, "✅ Información del empleado actualizada correctamente.")
         except Exception as e:
             messages.error(request, f"⚠️ Error al actualizar: {e}")
         
-        return redirect('Actualizar-Empleado', id)
+        return redirect('Actualizar-Empleado-G', id)
         
-    return render(request, 'editar_Empleado.html', {'empleado': empleado, 'sin_coordinador':sin_coordinador})
+    return render(request, 'editar_Empleado_G.html', {'empleado': empleado, 'sin_coordinador':sin_coordinador})
