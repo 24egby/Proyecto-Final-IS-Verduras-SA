@@ -62,13 +62,6 @@
         background: rgba(255, 255, 255, 0.15);
       }
 
-      .logout {
-        background: rgba(255, 255, 255, 0.2);
-        padding: 8px 12px;
-        border-radius: 8px;
-        font-weight: 700;
-      }
-
       /* --- CONTENIDO --- */
       .content {
         padding: 30px;
@@ -144,27 +137,6 @@
         font-size: 0.9rem;
       }
 
-      /* MODAL */
-      .modal-bg {
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.4);
-        display: none;
-        justify-content: center;
-        align-items: center;
-        z-index: 100;
-      }
-
-      .modal {
-        background: #fff;
-        padding: 25px;
-        border-radius: 12px;
-        max-width: 500px;
-        width: 90%;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-        animation: fadeIn 0.3s ease;
-      }
-
       @keyframes fadeIn {
         from {
           opacity: 0;
@@ -176,35 +148,10 @@
         }
       }
 
-      .modal h3 {
-        margin-top: 0;
-        color: var(--orange);
-      }
-
-      .close-btn {
-        background: none;
-        border: none;
-        font-size: 20px;
-        float: right;
-        cursor: pointer;
-      }
-
       .table {
         width: 100%;
         border-collapse: collapse;
         margin-top: 10px;
-      }
-
-      .table th,
-      .table td {
-        padding: 10px;
-        border-bottom: 1px solid #eee;
-        text-align: left;
-      }
-
-      .table th {
-        background: #fff7ef;
-        color: var(--orange);
       }
 
       @media (max-width: 768px) {
@@ -225,19 +172,17 @@
     <nav class="navbar">
       <img src="{% static 'img/Logo.png' %}" alt="Logo Verduras S.A" />
       <div class="nav-links">
-        <a href="#">Inicio</a>
-        <a href="#">Empleados</a>
+        <a href="{% url 'Admin-Bodega' %}">Inicio</a>
+        <a href="{% url 'Gestion-Empleados' %}">Empleados</a>
         <a href="#">Informes</a>
-        <a href="#">Cerrar sesión</a>
+        <a href="{% url 'logout' %}">Cerrar sesión</a>
       </div>
     </nav>
 
     <div class="content">
       <div class="header">
-        <h1>Panel del Administrador</h1>
-        <p>
-          Gestione empleados y revise los informes de producción.
-        </p>
+        <h1>Panel Administrador de Bodega</h1>
+        <p>Gestione empleados y revise los informes de producción.</p>
       </div>
 
       <div class="grid">
@@ -247,9 +192,10 @@
             Administre los empleados de su granja o bodega. Puede agregar,
             editar o eliminar registros.
           </p>
-          <button class="btn" onclick="openModal('empleados')">
-            Ver empleados
-          </button>
+          <form action="{% url 'Gestion-Empleados' %}" method="post">
+            {% csrf_token %}
+            <button class="btn">Ver empleados</button>
+          </form>
         </div>
 
         <div class="card">
@@ -269,62 +215,6 @@
       &copy; 2025 Verduras S.A — Sistema de gestión de granjas y bodegas
     </footer>
 
-    <!-- MODALES -->
-    <div class="modal-bg" id="modalBg">
-      <div class="modal" id="modalBox">
-        <button class="close-btn" onclick="closeModal()">✖</button>
-        <h3 id="modalTitle"></h3>
-        <div id="modalContent"></div>
-      </div>
-    </div>
-
-    <script>
-      const modalBg = document.getElementById("modalBg");
-      const modalBox = document.getElementById("modalBox");
-      const modalTitle = document.getElementById("modalTitle");
-      const modalContent = document.getElementById("modalContent");
-
-      function openModal(type) {
-        modalBg.style.display = "flex";
-        if (type === "empleados") {
-          modalTitle.textContent = "Gestión de Empleados";
-          modalContent.innerHTML = `
-          <table class="table">
-            <tr><th>Nombre</th><th>Rol</th><th>Estado</th></tr>
-            <tr><td>Lucía Pérez</td><td>Recolectora</td><td>Activo</td></tr>
-            <tr><td>Andrés Torres</td><td>Conductor</td><td>Activo</td></tr>
-            <tr><td>María Rojas</td><td>Clasificadora</td><td>En descanso</td></tr>
-          </table>
-          <button class="btn" style="margin-top:12px;">➕ Agregar Empleado</button>
-        `;
-        } else if (type === "informes") {
-          modalTitle.textContent = "Informes de Actividad";
-          modalContent.innerHTML = `
-          <p><strong>Producción semanal:</strong> 4.200 kg de vegetales.</p>
-          <p><strong>Pérdidas:</strong> 2.3% por transporte y selección.</p>
-          <p><strong>Camiones activos:</strong> 8 / 10</p>
-          <button class="btn" style="margin-top:10px;">📄 Descargar informe</button>
-        `;
-        } else if (type === "camiones") {
-          modalTitle.textContent = "Camiones Asignados";
-          modalContent.innerHTML = `
-          <table class="table">
-            <tr><th>ID</th><th>Origen</th><th>Destino</th><th>Estado</th></tr>
-            <tr><td>001</td><td>Granja 1</td><td>Bodega 3</td><td>En ruta</td></tr>
-            <tr><td>002</td><td>Granja 2</td><td>Bodega 1</td><td>En carga</td></tr>
-            <tr><td>003</td><td>Granja 4</td><td>Bodega 2</td><td>Descargando</td></tr>
-          </table>
-        `;
-        }
-      }
-
-      function closeModal() {
-        modalBg.style.display = "none";
-      }
-
-      window.onclick = (e) => {
-        if (e.target === modalBg) closeModal();
-      };
-    </script>
+    <script></script>
   </body>
 </html>

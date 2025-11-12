@@ -147,7 +147,7 @@ def crear_Admins(request):
     if request.method == "POST":
         nombre = request.POST.get("nombre")
         apellido = request.POST.get("apellido")
-        nombre_usuario = f"{nombre.title()}.{apellido.title()}"
+        nombre_usuario = request.POST.get("email")
         email = request.POST.get("email")
         password = make_password(request.POST.get("password"))
         tipo_instalacion = request.POST.get("tipo-instalacion")
@@ -195,7 +195,7 @@ def actualizar_admin(request, id):
     if request.method == 'POST':
         nombre = request.POST.get('nombre')
         apellido = request.POST.get('apellido')
-        username = f"{nombre.title()}.{apellido.title()}"
+        username = request.POST.get('email')
         correo = request.POST.get('email')
         tipo_instalacion = request.POST.get('tipo-instalacion')
         id_instalacion = request.POST.get('instalacion')

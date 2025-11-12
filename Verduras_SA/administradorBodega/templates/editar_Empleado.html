@@ -179,9 +179,9 @@
   </head>
   <body>
     <div class="wrap">
-      <section class="card" aria-label="Registro de usuario">
+      <section class="card" aria-label="Edición de Empleado">
         <header class="header">
-          <h1 class="title">Crear Empleado</h1>
+          <h1 class="title">Editar Empleado</h1>
         </header>
 
         {% if messages %}
@@ -193,7 +193,11 @@
         {% endif %}
 
         <!-- FORMULARIO -->
-        <form action="{% url 'Agregar-Empleado' %}" method="post" novalidate>
+        <form
+          action="{% url 'Actualizar-Empleado' empleado.id %}"
+          method="post"
+          novalidate
+        >
           {% csrf_token %}
 
           <div class="field">
@@ -203,6 +207,7 @@
               class="input"
               name="nombre"
               type="text"
+              value="{{ empleado.nombre }}"
               placeholder="Nombre del Empleado"
               autocomplete="name"
               required
@@ -216,6 +221,7 @@
               class="input"
               name="apellido"
               type="text"
+              value="{{ empleado.apellido }}"
               placeholder="Apellido del Empleado"
               autocomplete="lastname"
               required
@@ -225,10 +231,16 @@
           <div class="field">
             <label for="cargo">Cargo</label>
             <select id="cargo" name="cargo" required>
-              <option value="">Seleccione un tipo</option>
-              <option value="EmpleBodega">Operario</option>
-              {% if sin_coordinador == 1 %}
-              <option value="Coordinador">Coordinador</option>
+              {% if empleado.tipo == "Coordinador de Bodega"%}
+              <option value="Coordinador de Bodega" selected>
+                Coordinador
+              </option>
+              <option value="Empleado de Bodega">Operario</option>
+              {% elif empleado.tipo == "Empleado de Bodega" and sin_coordinador == 1 %}
+              <option value="Empleado de Bodega" selected>Operario</option>
+              <option value="Coordinador de Bodega">Coordinador</option>
+              {% else %}
+              <option value="Empleado de Bodega" selected>Operario</option>
               {% endif %}
             </select>
           </div>
@@ -240,6 +252,7 @@
               class="input"
               name="email"
               type="email"
+              value="{{ empleado.correo }}"
               placeholder="yo@ejemplo.com"
               autocomplete="email"
               required
@@ -247,20 +260,19 @@
           </div>
 
           <div class="field">
-            <label for="password">Contraseña</label>
+            <label for="password">Nueva Contraseña</label>
             <input
               id="password"
               class="input"
               name="password"
               type="password"
-              placeholder="Contraseña123"
+              placeholder="Dejar en blanco para mantener la actual"
               autocomplete="new-password"
-              required
             />
           </div>
 
           <div class="actions">
-            <button class="btn" type="submit">Registrar Empleado</button>
+            <button class="btn" type="submit">Guardar Cambios</button>
           </div>
         </form>
 
