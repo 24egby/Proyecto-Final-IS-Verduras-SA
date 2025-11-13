@@ -16,6 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic import TemplateView
 import login.views as LW
 
 urlpatterns = [
@@ -23,11 +24,13 @@ urlpatterns = [
     
     path('', LW.login_view, name="Login"),
     path('Logout', LW.logout_g, name="logout"),
+    path('No-Autorizado/', LW.acceso_denegado, name='no_autorizado'),
+    path('No-Encontrado/', LW.error_404, name='404'),
     
     path('Gerente/',include("gerente.urls")),
     path('Admin-Bodega/',include("administradorBodega.urls")),
     path('Admin-Granja/',include("administradorGranja.urls")),
+    path('Coord-Bodega/',include("coordinadorBodega.urls")),
     #path('Coord-Granja/',include("coordinadorGranja.urls")),
-    #path('Coord-Bodega/',include("coordinadorBodega.urls")),
     #path('Emple-Bodega/',include("empleadoBodega.urls")),
 ]

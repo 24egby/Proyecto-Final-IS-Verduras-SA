@@ -1,0 +1,29 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pagina no encontrada </title>
+    <style>
+      body {
+        margin: 0;
+        height: 100vh;
+        background-color: #121212; /* Fondo oscuro elegante */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      img {
+        max-width: 50%;
+        max-height: 50%;
+        border-radius: 10px;
+        box-shadow: 0 0 30px rgba(255, 0, 0, 0.3);
+      }
+    </style>
+  </head>
+  <body>
+    <img src="{% static 'img/Error_404.png' %}" alt="Error" />
+  </body>
+</html>

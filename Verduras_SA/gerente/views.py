@@ -5,9 +5,10 @@ from django.contrib import messages
 from django.db import connection
 from django.http import JsonResponse
 from django.contrib.auth.hashers import make_password
-from django.views.decorators.csrf import csrf_exempt
+from Verduras_SA.decorators import group_required
 
 @login_required
+@group_required("Gerente")
 def home_gerente(request):
     granjas = VerGranjas.objects.all()
     bodegas = VerBodegas.objects.all() 
@@ -26,6 +27,7 @@ def home_gerente(request):
 
 #Gestion de Granjas
 @login_required
+@group_required("Gerente")
 def gestion_Granjas(request):
     granjas = VerGranjas.objects.all()
     context = {
@@ -34,6 +36,7 @@ def gestion_Granjas(request):
     return render(request, "gestion_Granjas.html", context)
 
 @login_required
+@group_required("Gerente")
 def crear_Granja(request):
     if request.method == 'POST':
         nombre = request.POST.get('nombre')
@@ -68,6 +71,7 @@ def crear_Granja(request):
     return render(request, 'crear_Granja.html')
 
 @login_required
+@group_required("Gerente")
 def eliminar_Granja(request, id):
     try:
         with connection.cursor() as cursor:
@@ -78,11 +82,13 @@ def eliminar_Granja(request, id):
         return JsonResponse({'status': 'error'}, status=500)
 
 @login_required
+@group_required("Gerente")
 def editar_granja(request, id):
     granja = get_object_or_404(VerGranjas, id=id)
     return render(request, 'editar_Granja.html', {'granja': granja})
 
 @login_required
+@group_required("Gerente")
 def actualizar_granja(request, id):
     if request.method == 'POST':
         nombre = request.POST.get('nombre')
@@ -102,6 +108,7 @@ def actualizar_granja(request, id):
 
 #Vista de Coordinadores
 @login_required 
+@group_required("Gerente")
 def vista_coordinadores(request):
     coords = VerCoordsInsta.objects.all()
     return render(request, "vista_Coord.html", {
@@ -110,6 +117,7 @@ def vista_coordinadores(request):
     
 #Gestion de Productos
 @login_required
+@group_required("Gerente")
 def gestion_Productos(request):
     productos = VerProductos.objects.all()
     context = {
@@ -118,6 +126,7 @@ def gestion_Productos(request):
     return render(request, "gestion_Productos.html", context)
 
 @login_required
+@group_required("Gerente")
 def eliminar_producto(request, id):
     producto = get_object_or_404(Producto, id=id)
     producto.delete()
@@ -125,6 +134,7 @@ def eliminar_producto(request, id):
     return redirect("Gestion-Productos")
 
 @login_required
+@group_required("Gerente")
 def agregar_producto(request):
     if request.method == "POST":
         nombre = request.POST.get("nombre")
@@ -135,6 +145,7 @@ def agregar_producto(request):
 
 #Gestion de Administradores
 @login_required
+@group_required("Gerente")
 def gestion_Admins(request):
     admins = VerAdminsInsta.objects.all()
     context = {
@@ -143,6 +154,7 @@ def gestion_Admins(request):
     return render(request, "gestion_Administradores.html", context)
 
 @login_required
+@group_required("Gerente")
 def crear_Admins(request):
     if request.method == "POST":
         nombre = request.POST.get("nombre")
@@ -165,6 +177,7 @@ def crear_Admins(request):
     return render(request, "crear_Admins.html")
 
 @login_required
+@group_required("Gerente")
 def obtener_instalaciones(request):
     tipo = request.GET.get("tipo")
     data = []
@@ -178,6 +191,7 @@ def obtener_instalaciones(request):
     return JsonResponse(data, safe=False)
 
 @login_required
+@group_required("Gerente")
 def eliminar_admin(request, id_admin):
     if request.method == "POST":
         try:
@@ -190,6 +204,7 @@ def eliminar_admin(request, id_admin):
     return redirect('Gestion-Admins') 
 
 @login_required
+@group_required("Gerente")
 def actualizar_admin(request, id):
     admin = get_object_or_404(VerAdminsDetalle, id=id)
     if request.method == 'POST':
@@ -218,6 +233,7 @@ def actualizar_admin(request, id):
 
 #Gestion Bodegas
 @login_required
+@group_required("Gerente")
 def gestion_Bodegas(request):
     bodegas = VerBodegas.objects.all()
     context = {
@@ -226,6 +242,7 @@ def gestion_Bodegas(request):
     return render(request, "gestion_Bodegas.html", context)
 
 @login_required
+@group_required("Gerente")
 def crear_Bodega(request):
     # Obtener vegetales sin instalación asignada
     vegetales_disponibles = Producto.objects.filter(id_instalacion__isnull=True)
@@ -261,6 +278,7 @@ def crear_Bodega(request):
     })
 
 @login_required
+@group_required("Gerente")
 def eliminar_Bodega(request, id):
     try:
         with connection.cursor() as cursor:
@@ -271,6 +289,7 @@ def eliminar_Bodega(request, id):
         return JsonResponse({'status': 'error'}, status=500)
 
 @login_required
+@group_required("Gerente")
 def editar_Bodega(request, id):
     bodega = get_object_or_404(VerBodegas, id=id)
     productos = Producto.objects.filter(id_instalacion__isnull=True)
@@ -280,6 +299,7 @@ def editar_Bodega(request, id):
     })
 
 @login_required
+@group_required("Gerente")
 def actualizar_Bodega(request, id):
     if request.method == 'POST':
         nombre = request.POST.get("nombre")
@@ -301,11 +321,13 @@ def actualizar_Bodega(request, id):
     
 # Gestion Camiones
 @login_required
+@group_required("Gerente")
 def gestion_Camiones(request, id): 
     camiones = VerCamiones.objects.filter(id_instalacion=id) 
     return render(request, 'gestion_Camiones.html', {'camiones': camiones, 'id_instalacion':id})
 
 @login_required
+@group_required("Gerente")
 def agregar_camion(request):
     if request.method == 'POST':
         placa = request.POST.get('placa')
@@ -318,7 +340,8 @@ def agregar_camion(request):
             messages.error(request, f"Error al agregar camión: {e}")
         return redirect('Gestion-Camiones', id=id_instalacion)
 
-@csrf_exempt
+@login_required
+@group_required("Gerente")
 def eliminar_Camion(request, id):
     if request.method == 'POST':
         try:

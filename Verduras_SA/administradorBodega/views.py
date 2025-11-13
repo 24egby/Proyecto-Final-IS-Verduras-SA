@@ -3,9 +3,7 @@ from .models import VerEmpleados, VerEmpleadosDetallados
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.db import connection
-from django.http import JsonResponse
 from django.contrib.auth.hashers import make_password
-from django.views.decorators.csrf import csrf_exempt
 
 def obtener_id_instalacion(user_id):
     try:

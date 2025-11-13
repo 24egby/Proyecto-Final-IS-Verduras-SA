@@ -41,3 +41,10 @@ def login_view(request):
 def logout_g(request):
     logout(request)
     return redirect("Login")
+
+def acceso_denegado(request):
+    return render(request, "acceso_denegado.html")
+
+
+def error_404(request):
+    return render(request, "404.html")
