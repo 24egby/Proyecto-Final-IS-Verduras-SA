@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from Verduras_SA.decorators import group_required
 from .models import VerEmpleados, VerEmpleadosDetallados
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
@@ -30,12 +31,14 @@ def verificar_coordinador(id_insta):
         return 0
 
 @login_required
+@group_required("AdminGranja")
 def home_admin_granja(request):
     return render(request, "home_admin_granja.html")
 
 
 #Gestion de Empleados
 @login_required
+@group_required("AdminGranja")
 def gestion_empleados(request):
     user = request.user
     user_id = user.id 
@@ -44,6 +47,7 @@ def gestion_empleados(request):
     return render(request, "gestion_Empleados_G.html", {'empleados':empleados})
 
 @login_required
+@group_required("AdminGranja")
 def crear_Empleado(request):
     user = request.user
     user_id = user.id 
@@ -69,6 +73,7 @@ def crear_Empleado(request):
     return render(request, 'crear_empleados_G.html', {'sin_coordinador': sin_coordinador})
 
 @login_required
+@group_required("AdminGranja")
 def eliminar_Empleado(request, id_admin):
     if request.method == "POST":
         try:
@@ -81,6 +86,7 @@ def eliminar_Empleado(request, id_admin):
     return redirect('Gestion-Empleados-G') 
 
 @login_required
+@group_required("AdminGranja")
 def actualizar_Empleado(request, id):
     user = request.user
     user_id = user.id 

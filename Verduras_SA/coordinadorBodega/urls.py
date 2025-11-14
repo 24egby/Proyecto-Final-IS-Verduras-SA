@@ -5,7 +5,9 @@ import coordinadorBodega.views as VCB
 urlpatterns = [
     path('', VCB.home_coord_bodega, name="Coord-Bodega"),
     
+    #Gestion Camiones
     path('Gestion-Camiones/', VCB.gestion_Camiones, name='Gestion-Camiones-c'),
+    path('Gestion-Camiones/Actualizar-Camion', VCB.actualizar_Estado_Camion, name='Actualizar-Camion'),
     #Gestion Empleados
     #path('Gestion-Empleados', VCB.gestion_empleados, name="Gestion-Empleados-B"),
     #path('Gestion-Empleados/Agregar-Empleado', VCB.crear_Empleado, name="Agregar-Empleado-B"),

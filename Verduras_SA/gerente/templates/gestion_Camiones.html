@@ -367,12 +367,27 @@
       const modalEstado = document.getElementById("modalEstado");
       const navLinks = document.getElementById("navLinks");
       let idActual = null;
+      let estadoActual = null;
 
       function abrirModal(id, placa, estado) {
         idActual = id;
+        estadoActual = estado; // Guardamos el estado real del camión
         modalPlaca.textContent = placa;
         modalEstado.textContent = estado;
         modal.style.display = "flex";
+
+        // Deshabilitar botón si NO se puede eliminar
+        const btnEliminar = document.querySelector(".btn-eliminar");
+
+        if (estado === "En garaje" || estado === "Mantenimiento") {
+          btnEliminar.disabled = false;
+          btnEliminar.style.opacity = "1";
+          btnEliminar.style.cursor = "pointer";
+        } else {
+          btnEliminar.disabled = true;
+          btnEliminar.style.opacity = "0.5";
+          btnEliminar.style.cursor = "not-allowed";
+        }
       }
 
       function cerrarModal() {
@@ -397,9 +412,21 @@
       };
 
       function eliminarCamion() {
+        // Seguridad adicional: bloquea si no cumple condición
+        if (
+          !(estadoActual === "En garaje" || estadoActual === "Mantenimiento")
+        ) {
+          alert(
+            "Solo puedes eliminar camiones que estén 'En garaje' o 'Mantenimiento'."
+          );
+          return;
+        }
+
         if (!idActual) return;
         if (!confirm("¿Seguro que deseas eliminar este camión?")) return;
+
         const baseUrl = "{% url 'Eliminar-Camion' 0 %}".replace("0", idActual);
+
         fetch(baseUrl, {
           method: "POST",
           headers: { "X-CSRFToken": getCookie("csrftoken") },

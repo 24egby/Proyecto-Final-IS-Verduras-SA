@@ -6,8 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Camiones - Verduras S.A</title>
     <style>
-      /* --- MISMO DISEÑO QUE GESTIÓN DE BODEGAS --- */
-
       * {
         margin: 0;
         padding: 0;
@@ -278,6 +276,13 @@
           font-size: 1rem;
         }
       }
+
+      .input-select {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+        border-radius: 8px;
+      }
     </style>
   </head>
 
@@ -290,7 +295,7 @@
         <div></div>
       </div>
       <div class="nav-links" id="navLinks">
-        <a href="{% url "Coord-Bodega" %}">Inicio</a>
+        <a href="{% url "Coord-Bodega" %}">Inicio
         <a href="#">Recepción</a>
         <a href="{% url 'logout' %}">Cerrar sesión</a>
       </div>
@@ -304,10 +309,11 @@
         {% for c in camiones %}
         <li
           class="farm-item"
+          id="camion-{{ c.id }}"
           onclick="abrirModal('{{ c.id }}', '{{ c.placa }}', '{{ c.estado }}')"
         >
           <h3>{{ c.placa }}</h3>
-          <p><b>{{ c.estado }}</b></p>
+          <p><b class="estado-text">{{ c.estado }}</b></p>
         </li>
         {% empty %}
         <li>No hay camiones registrados</li>
@@ -315,7 +321,7 @@
       </ul>
     </div>
 
-    <!-- MODAL VER/ELIMINAR -->
+    <!-- MODAL VER -->
     <div class="modal" id="modalFarm">
       <div class="modal-content">
         <div class="modal-header">
@@ -326,18 +332,53 @@
           <p><b>Estado:</b> <span id="modalEstado"></span></p>
         </div>
         <div class="modal-buttons">
-          <button class="btn-agregar" onclick="">Ver en mapa</button>
-          <button class="btn-agregar" onclick="">Editar</button>
+          <button class="btn-agregar">Ver en mapa</button>
+          <button class="btn-agregar" id="btnEditar">Editar</button>
         </div>
       </div>
     </div>
 
+    <!-- MODAL EDITAR -->
+    <div class="modal" id="modalEditar">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Editar Estado</h3>
+          <button class="close-btn" onclick="cerrarModalEditar()">✖</button>
+        </div>
+
+        <div class="modal-body">
+          <label><b>Nuevo estado:</b></label>
+          <select id="selectEstado" class="input-select">
+            <option value="En garaje">En garaje</option>
+            <option value="Mantenimiento">Mantenimiento</option>
+          </select>
+        </div>
+
+        <div class="modal-buttons">
+          <button class="btn-agregar" onclick="actualizarEstado()">
+            Actualizar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <style>
+      .input-select {
+        width: 100%;
+        padding: 8px;
+        border-radius: 8px;
+        margin-top: 5px;
+      }
+    </style>
+
     <script>
       const modal = document.getElementById("modalFarm");
-      const modalAgregar = document.getElementById("modalAgregar");
+      const modalEditar = document.getElementById("modalEditar");
       const modalPlaca = document.getElementById("modalPlaca");
       const modalEstado = document.getElementById("modalEstado");
+      const btnEditar = document.getElementById("btnEditar");
       const navLinks = document.getElementById("navLinks");
+
       let idActual = null;
 
       function abrirModal(id, placa, estado) {
@@ -345,10 +386,32 @@
         modalPlaca.textContent = placa;
         modalEstado.textContent = estado;
         modal.style.display = "flex";
+
+        const habilitados = ["En garaje", "Mantenimiento"];
+
+        if (habilitados.includes(estado)) {
+          btnEditar.disabled = false;
+          btnEditar.style.opacity = "1";
+          btnEditar.style.cursor = "pointer";
+        } else {
+          btnEditar.disabled = true;
+          btnEditar.style.opacity = "0.5";
+          btnEditar.style.cursor = "not-allowed";
+        }
       }
 
       function cerrarModal() {
         modal.style.display = "none";
+      }
+
+      btnEditar.onclick = function () {
+        if (!btnEditar.disabled) {
+          modalEditar.style.display = "flex";
+        }
+      };
+
+      function cerrarModalEditar() {
+        modalEditar.style.display = "none";
       }
 
       function toggleMenu() {
@@ -357,7 +420,7 @@
 
       window.onclick = function (event) {
         if (event.target === modal) cerrarModal();
-        if (event.target === modalAgregar) cerrarModalAgregar();
+        if (event.target === modalEditar) cerrarModalEditar();
       };
 
       function getCookie(name) {
@@ -375,6 +438,34 @@
           }
         }
         return cookieValue;
+      }
+
+      function actualizarEstado() {
+        const nuevoEstado = document.getElementById("selectEstado").value;
+
+        fetch("{% url 'Actualizar-Camion' %}", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-CSRFToken": getCookie("csrftoken"),
+          },
+          body: `id=${idActual}&estado=${nuevoEstado}`, // ← parámetros para el proceso
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.ok) {
+              // Actualiza visualmente la tarjeta
+              const item = document.querySelector(
+                `#camion-${idActual} .estado-text`
+              );
+              if (item) item.textContent = nuevoEstado;
+
+              modal.style.display = "none";
+              modalEditar.style.display = "none";
+            } else {
+              alert("Error al actualizar");
+            }
+          });
       }
     </script>
   </body>

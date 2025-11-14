@@ -128,9 +128,12 @@ def gestion_Productos(request):
 @login_required
 @group_required("Gerente")
 def eliminar_producto(request, id):
-    producto = get_object_or_404(Producto, id=id)
-    producto.delete()
-    messages.success(request, "✅ Producto eliminado exitosamente.")
+    try:
+        with connection.cursor() as cursor:
+            cursor.callproc('eliminar_producto', [id])
+            messages.success(request, "✅ Producto eliminado exitosamente.")
+    except Exception as e:
+        messages.error("Error eliminando Producto:", e)
     return redirect("Gestion-Productos")
 
 @login_required
@@ -138,10 +141,13 @@ def eliminar_producto(request, id):
 def agregar_producto(request):
     if request.method == "POST":
         nombre = request.POST.get("nombre")
-        if nombre:
-            Producto.objects.create(producto=nombre)
-    messages.success(request, "✅ Producto agregado exitosamente.") 
-    return redirect("Gestion-Productos")
+        try:
+            with connection.cursor() as cursor:
+                cursor.callproc('agregar_producto', [nombre])
+                messages.success(request, "✅ Producto agregado exitosamente.")
+        except Exception as e:
+            messages.error("Error agregando Producto:", e)
+        return redirect("Gestion-Productos")
 
 #Gestion de Administradores
 @login_required
