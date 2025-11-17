@@ -208,6 +208,32 @@
           width: 100%;
         }
       }
+
+      #msg-container {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        width: 90%;
+        max-width: 400px;
+      }
+
+      .msg-alert {
+        background: #d4edda;
+        color: #155724;
+        padding: 14px 20px;
+        border-radius: 10px;
+        border-left: 6px solid #28a745;
+        font-weight: bold;
+        text-align: center;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        opacity: 0;
+        animation: fadeIn 0.5s forwards, fadeOut 0.5s 3.5s forwards;
+      }
     </style>
   </head>
 
@@ -216,9 +242,17 @@
     <nav class="navbar">
       <img src="{% static 'img/Logo.png' %}" alt="Logo Verduras S.A" />
       <div class="nav-links">
-        <a href="{% url 'logout' %}" class="logout">Cerrar sesión</a>
+        <a href="{% url 'logout' %}">Cerrar sesión</a>
       </div>
     </nav>
+
+    {% if messages %}
+    <div id="msg-container">
+      {% for message in messages %}
+      <div class="msg-alert">{{ message }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
 
     <!-- CONTENIDO -->
     <div class="content">
@@ -251,17 +285,6 @@
         <form method="POST" action="">
           {% csrf_token %}
 
-          <!-- Selección de producto -->
-          <label>Seleccione un producto:</label>
-          <select name="producto" class="input" required>
-            <option value="">-- Seleccione --</option>
-            {% for p in productos %}
-            <option value="{{ p.id }}">{{ p.producto }}</option>
-            {% empty %}
-            <option value="">No hay productos disponibles</option>
-            {% endfor %}
-          </select>
-
           <!-- Estado del producto -->
           <label>Seleccione estado del producto:</label>
           <select name="estado" class="input" required>
@@ -288,7 +311,6 @@
       </div>
     </div>
 
-    <!-- SCRIPT MODAL -->
     <script>
       const modalBg = document.getElementById("modalBg");
 
@@ -303,6 +325,11 @@
       window.onclick = (e) => {
         if (e.target === modalBg) closeModal();
       };
+
+      setTimeout(() => {
+        const alerts = document.querySelectorAll(".msg-alert");
+        alerts.forEach((a) => a.remove());
+      }, 4500);
     </script>
   </body>
 </html>

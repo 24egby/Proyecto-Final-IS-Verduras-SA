@@ -28,8 +28,6 @@ def login_view(request):
                     return redirect("Coord-Bodega")
                 case "EmpleBodega":
                     return redirect("Empleado-Bodega")
-                case "EmpleGranja":
-                    return redirect("Empleado-Granja")
                 case _:
                     error = "No perteneces a un grupo válido."
                     return redirect("Login")

@@ -223,11 +223,9 @@
   <nav class="navbar">
     <img src="{% static 'img/Logo.png' %}" alt="Logo Verduras S.A">
     <div class="nav-links">
-      <a href="#">Inicio</a>
-      <a href="#">Productos</a>
-      <a href="{% url 'Escanear-Camara' %}">Entrada y salida Camiones</a>
-      <a href="#">Notificaciones</a>
-      <a href="#" class="logout">Cerrar sesión</a>
+      <a href="{% url 'Coord-Granja' %}">Inicio</a>
+      <a href="#">Entrada y salida Camiones</a>
+      <a href="{% url 'logout' %}">Cerrar sesión</a>
     </div>
   </nav>
 
@@ -250,11 +248,6 @@
         <button class="btn" onclick="openModal('camiones')">Ver Camiones</button>
       </div>
 
-      <div class="card">
-        <h2>🔔 Notificaciones</h2>
-        <p>Revise los reportes automáticos de salida y recepción de camiones.</p>
-        <button class="btn" onclick="openModal('notificaciones')">Ver Notificaciones</button>
-      </div>
     </div>
   </div>
 

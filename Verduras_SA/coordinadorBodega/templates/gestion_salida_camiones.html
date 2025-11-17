@@ -5,6 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Camiones - Verduras S.A</title>
+
     <style>
       * {
         margin: 0;
@@ -80,21 +81,6 @@
         color: #333;
       }
 
-      .btn-agregar {
-        background-color: #ff8800;
-        border: none;
-        color: white;
-        padding: 10px 18px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: 0.3s;
-      }
-
-      .btn-agregar:hover {
-        background-color: #e57700;
-      }
-
       .farm-list {
         list-style: none;
         display: flex;
@@ -125,7 +111,7 @@
         font-size: 1.1rem;
       }
 
-      /* --- MODALES --- */
+      /* MODALES */
       .modal {
         display: none;
         position: fixed;
@@ -177,20 +163,6 @@
         cursor: pointer;
       }
 
-      .modal-body label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: bold;
-      }
-
-      .modal-body input {
-        width: 100%;
-        padding: 8px;
-        margin-bottom: 10px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-      }
-
       .modal-body button {
         width: 100%;
         background-color: #ff8800;
@@ -200,34 +172,11 @@
         border-radius: 6px;
         font-weight: bold;
         cursor: pointer;
+        margin-top: 10px;
       }
 
       .modal-body button:hover {
         background-color: #e57700;
-      }
-
-      .modal-buttons {
-        margin-top: 15px;
-        display: flex;
-        justify-content: flex-end;
-        gap: 10px;
-      }
-
-      .btn {
-        padding: 8px 14px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-weight: bold;
-      }
-
-      .btn-eliminar {
-        background-color: #dc3545;
-        color: white;
-      }
-
-      .btn-eliminar:hover {
-        background-color: #c82333;
       }
 
       @media (max-width: 768px) {
@@ -261,11 +210,6 @@
           gap: 10px;
         }
 
-        .btn-agregar {
-          width: 100%;
-          text-align: center;
-        }
-
         .farm-item {
           flex-direction: column;
           align-items: flex-start;
@@ -277,11 +221,52 @@
         }
       }
 
-      .input-select {
-        width: 100%;
-        padding: 8px;
-        margin-top: 5px;
-        border-radius: 8px;
+      #msg-container {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        width: 90%;
+        max-width: 400px;
+      }
+
+      .msg-alert {
+        background: #d4edda;
+        color: #155724;
+        padding: 14px 20px;
+        border-radius: 10px;
+        border-left: 6px solid #28a745;
+        font-weight: bold;
+        text-align: center;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        opacity: 0;
+        animation: fadeIn 0.5s forwards, fadeOut 0.5s 3.5s forwards;
+      }
+
+      @keyframes fadeIn {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+      }
+
+      @keyframes fadeOut {
+        to {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        from {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
     </style>
   </head>
@@ -295,179 +280,97 @@
         <div></div>
       </div>
       <div class="nav-links" id="navLinks">
-        <a href="{% url "Coord-Bodega" %}">Inicio
-        <a href="{% url 'Salida-Camiones' %}">Salidas</a>
+        <a href="{% url 'Coord-Bodega' %}">Inicio</a>
         <a href="{% url 'Llegada-Camiones' %}">Recepción</a>
+        <a href="{% url 'Gestion-Camiones-c' %}">Camiones</a>
         <a href="{% url 'logout' %}">Cerrar sesión</a>
       </div>
     </nav>
 
+    {% if messages %}
+    <div id="msg-container">
+      {% for message in messages %}
+      <div class="msg-alert">{{ message }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
     <div class="content">
       <div class="header">
-        <h2>Camiones Registrados</h2>
+        <h2>Camiones Disponibles</h2>
       </div>
+
       <ul class="farm-list">
         {% for c in camiones %}
         <li
           class="farm-item"
-          id="camion-{{ c.id }}"
-          onclick="abrirModal('{{ c.id }}', '{{ c.placa }}', '{{ c.estado }}')"
+          onclick="abrirModal('{{ c.id }}', '{{ c.placa }}')"
         >
           <h3>{{ c.placa }}</h3>
-          <p><b class="estado-text">{{ c.estado }}</b></p>
         </li>
         {% empty %}
-        <li>No hay camiones registrados</li>
+        <li>No hay camiones Disponibles</li>
         {% endfor %}
       </ul>
     </div>
 
-    <!-- MODAL VER -->
+    <!-- MODAL DE OPCIONES -->
     <div class="modal" id="modalFarm">
       <div class="modal-content">
         <div class="modal-header">
           <h3 id="modalPlaca">Placa</h3>
           <button class="close-btn" onclick="cerrarModal()">✖</button>
         </div>
-        <div class="modal-body">
-          <p><b>Estado:</b> <span id="modalEstado"></span></p>
-        </div>
-        <div class="modal-buttons">
-          <button class="btn-agregar">Ver en mapa</button>
-          <button class="btn-agregar" id="btnEditar">Editar</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- MODAL EDITAR -->
-    <div class="modal" id="modalEditar">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h3>Editar Estado</h3>
-          <button class="close-btn" onclick="cerrarModalEditar()">✖</button>
-        </div>
 
         <div class="modal-body">
-          <label><b>Nuevo estado:</b></label>
-          <select id="selectEstado" class="input-select">
-            <option value="En garaje">En garaje</option>
-            <option value="Mantenimiento">Mantenimiento</option>
-          </select>
-        </div>
+          <button onclick="generarSalida('granja')">
+            Generar salida a granja
+          </button>
 
-        <div class="modal-buttons">
-          <button class="btn-agregar" onclick="actualizarEstado()">
-            Actualizar
+          <button onclick="generarSalida('venta')">
+            Generar salida a venta
           </button>
         </div>
       </div>
     </div>
 
-    <style>
-      .input-select {
-        width: 100%;
-        padding: 8px;
-        border-radius: 8px;
-        margin-top: 5px;
-      }
-    </style>
-
     <script>
       const modal = document.getElementById("modalFarm");
-      const modalEditar = document.getElementById("modalEditar");
       const modalPlaca = document.getElementById("modalPlaca");
-      const modalEstado = document.getElementById("modalEstado");
-      const btnEditar = document.getElementById("btnEditar");
       const navLinks = document.getElementById("navLinks");
 
       let idActual = null;
 
-      function abrirModal(id, placa, estado) {
+      function abrirModal(id, placa) {
         idActual = id;
         modalPlaca.textContent = placa;
-        modalEstado.textContent = estado;
         modal.style.display = "flex";
-
-        const habilitados = ["En garaje", "Mantenimiento"];
-
-        if (habilitados.includes(estado)) {
-          btnEditar.disabled = false;
-          btnEditar.style.opacity = "1";
-          btnEditar.style.cursor = "pointer";
-        } else {
-          btnEditar.disabled = true;
-          btnEditar.style.opacity = "0.5";
-          btnEditar.style.cursor = "not-allowed";
-        }
       }
 
       function cerrarModal() {
         modal.style.display = "none";
       }
 
-      btnEditar.onclick = function () {
-        if (!btnEditar.disabled) {
-          modalEditar.style.display = "flex";
+      function generarSalida(tipo) {
+        if (tipo === "granja") {
+          window.location.href = `Generar-Salida-Granja/${idActual}/`;
+        } else {
+          window.location.href = `/Salida-Camiones/Generar-Salida-Venta/${idActual}/`;
         }
-      };
-
-      function cerrarModalEditar() {
-        modalEditar.style.display = "none";
       }
+
+      window.onclick = function (event) {
+        if (event.target === modal) cerrarModal();
+      };
 
       function toggleMenu() {
         navLinks.classList.toggle("active");
       }
 
-      window.onclick = function (event) {
-        if (event.target === modal) cerrarModal();
-        if (event.target === modalEditar) cerrarModalEditar();
-      };
-
-      function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== "") {
-          const cookies = document.cookie.split(";");
-          for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === name + "=") {
-              cookieValue = decodeURIComponent(
-                cookie.substring(name.length + 1)
-              );
-              break;
-            }
-          }
-        }
-        return cookieValue;
-      }
-
-      function actualizarEstado() {
-        const nuevoEstado = document.getElementById("selectEstado").value;
-
-        fetch("{% url 'Actualizar-Camion' %}", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "X-CSRFToken": getCookie("csrftoken"),
-          },
-          body: `id=${idActual}&estado=${nuevoEstado}`, // ← parámetros para el proceso
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            if (data.ok) {
-              // Actualiza visualmente la tarjeta
-              const item = document.querySelector(
-                `#camion-${idActual} .estado-text`
-              );
-              if (item) item.textContent = nuevoEstado;
-
-              modal.style.display = "none";
-              modalEditar.style.display = "none";
-            } else {
-              alert("Error al actualizar");
-            }
-          });
-      }
+      setTimeout(() => {
+        const alerts = document.querySelectorAll(".msg-alert");
+        alerts.forEach((a) => a.remove());
+      }, 4500);
     </script>
   </body>
 </html>

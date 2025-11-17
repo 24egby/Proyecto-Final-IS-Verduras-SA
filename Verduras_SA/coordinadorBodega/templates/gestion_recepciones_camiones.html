@@ -5,6 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Recepciones - Verduras S.A</title>
+
     <style>
       * {
         margin: 0;
@@ -17,7 +18,7 @@
         background-color: #f8f9fa;
       }
 
-      /* --- NAVBAR --- */
+      /* NAVBAR */
       .navbar {
         background-color: #ff8800;
         color: white;
@@ -30,7 +31,7 @@
       }
 
       .navbar img {
-        height: 60px;
+        height: 80px;
         width: auto;
       }
 
@@ -50,7 +51,6 @@
         text-decoration: underline;
       }
 
-      /* --- BOTÓN HAMBURGUESA --- */
       .menu-toggle {
         display: none;
         flex-direction: column;
@@ -64,7 +64,7 @@
         background-color: white;
       }
 
-      /* --- CONTENIDO --- */
+      /* CONTENIDO */
       .content {
         padding: 30px;
         max-width: 900px;
@@ -83,31 +83,7 @@
         color: #333;
       }
 
-      .btn-agregar {
-        background-color: #ff8800;
-        border: none;
-        color: white;
-        padding: 10px 18px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: 0.3s;
-      }
-
-      .btn-agregar:hover {
-        background-color: #e57700;
-      }
-
-      .btn-aceptar-camion {
-        background-color: #1ae000ff;
-        color: white;
-      }
-
-      .btn-aceptar-camion:hover {
-        background-color: #1bcc03ff;
-      }
-
-      /* --- LISTA DE ADMINISTRADORES --- */
+      /* LISTA */
       .admin-list {
         list-style: none;
         display: flex;
@@ -138,7 +114,7 @@
         font-size: 1.1rem;
       }
 
-      /* --- MODAL --- */
+      /* MODAL */
       .modal {
         display: none;
         position: fixed;
@@ -210,25 +186,34 @@
         font-weight: bold;
       }
 
-      .btn-ver-camion {
-        background-color: #007bff;
+      .btn-aceptar {
+        background-color: #1ae000;
         color: white;
       }
 
-      .btn-eliminar {
+      .btn-aceptar:hover {
+        background-color: #18c300;
+      }
+
+      .btn-rechazar {
         background-color: #dc3545;
         color: white;
       }
 
-      .btn-ver-camion:hover {
-        background-color: #0069d9;
-      }
-
-      .btn-eliminar:hover {
+      .btn-rechazar:hover {
         background-color: #c82333;
       }
 
-      /* --- RESPONSIVE DESIGN --- */
+      .btn-ver-mapa {
+        background-color: #007bff;
+        color: white;
+      }
+
+      .btn-ver-mapa:hover {
+        background-color: #0069d9;
+      }
+
+      /* RESPONSIVE */
       @media (max-width: 768px) {
         .nav-links {
           display: none;
@@ -250,21 +235,6 @@
           display: flex;
         }
 
-        .navbar img {
-          height: 50px;
-        }
-
-        .header {
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 10px;
-        }
-
-        .btn-agregar {
-          width: 100%;
-          text-align: center;
-        }
-
         .admin-item {
           flex-direction: column;
           align-items: flex-start;
@@ -275,12 +245,16 @@
           font-size: 1rem;
         }
       }
-      .navbar img {
-        height: 80px;
-        width: auto;
+
+      .btn-aceptar:disabled,
+      .btn-rechazar:disabled {
+        background-color: #aaa;
+        cursor: not-allowed;
+        opacity: 0.6;
       }
     </style>
   </head>
+
   <body>
     <!-- NAVBAR -->
     <nav class="navbar">
@@ -292,8 +266,8 @@
       </div>
       <div class="nav-links" id="navLinks">
         <a href="{% url 'Coord-Bodega' %}">Inicio</a>
-        <a href="#">Salidas</a>
-        <a href="#">Camiones</a>
+        <a href="{% url 'Salida-Camiones' %}">Salidas</a>
+        <a href="{% url 'Gestion-Camiones-c' %}">Camiones</a>
         <a href="{% url 'logout' %}">Cerrar sesión</a>
       </div>
     </nav>
@@ -301,70 +275,101 @@
     <!-- CONTENIDO -->
     <div class="content">
       <div class="header">
-        <h2>Generar salida de camion</h2>
-        <button class="btn-agregar" type="submit">➕ Agregar Empleado</button>
+        <h2>Recepciones Pendientes</h2>
       </div>
-
-      <!-- BLOQUE DE MENSAJES -->
-      {% if messages %}
-      <div
-        style="
-          background-color: #d4edda;
-          color: #155724;
-          padding: 12px 18px;
-          border-radius: 8px;
-          border: 1px solid #c3e6cb;
-          margin-bottom: 20px;
-          font-weight: bold;
-        "
-      >
-        {% for message in messages %} {{ message }} {% endfor %}
-      </div>
-      {% endif %}
 
       <ul class="admin-list">
-        {% for emple in empleados %}
+        {% for r in registros %}
         <li
           class="admin-item"
           onclick="abrirModal(
-        '{{ emple.nombre_completo }}',
-        '{{ emple.correo }}',
-        '{{ emple.tipo }}',
-        '{{ emple.id}}'
-      )"
+            '{{ r.producto }}',
+            '{{ r.granja }}',
+            '{{ r.cantidad }}',
+            '{{ r.camion }}',
+            '{{ r.estado }}'
+          )"
         >
-          <h3>{{ emple.nombre_completo }}</h3>
-          <p><strong>Rol:</strong> {{ emple.tipo }}</p>
+          <h3>{{ r.granja }}</h3>
+          <p><strong>Camión:</strong> {{ r.camion }}</p>
         </li>
         {% empty %}
-        <li>No hay Empleados registrados</li>
+        <li>No hay recepciones disponibles</li>
         {% endfor %}
       </ul>
     </div>
 
     <!-- MODAL -->
-    <div class="modal" id="modalAdmin">
+    <div class="modal" id="modalRecepcion">
       <div class="modal-content">
         <div class="modal-header">
-          <h3 id="modalNombre">Nombre</h3>
+          <h3 id="modalProducto">Producto</h3>
           <button class="close-btn" onclick="cerrarModal()">✖</button>
         </div>
+
         <div class="modal-body">
-          <p><b>Email:</b> <span id="modalEmail"></span></p>
-          <p><b>Rol:</b> <span id="modalRol"></span></p>
+          <p><b>Granja:</b> <span id="modalBodega"></span></p>
+          <p><b>Cantidad:</b> <span id="modalCantidad"></span></p>
+          <p><b>Camión:</b> <span id="modalCamion"></span></p>
+          <p><b>Estado:</b> <span id="modalEstado"></span></p>
         </div>
+
         <div class="modal-buttons">
-          <button class="btn btn-aceptar-camion" onclick="">Aceptar</button>
-          <button class="btn btn-eliminar" onclick="">Rechazar</button>
-          <button class="btn btn-ver-camion" onclick="">Ver en Mapa</button>
+          <button id="btnAceptar" class="btn btn-aceptar" disabled>
+            Aceptar
+          </button>
+          <button id="btnRechazar" class="btn btn-rechazar" disabled>
+            Rechazar
+          </button>
+          <button class="btn btn-ver-mapa">Ver en Mapa</button>
         </div>
       </div>
     </div>
 
     <script>
+      const navLinks = document.getElementById("navLinks");
+      const modal = document.getElementById("modalRecepcion");
+
+      const modalProducto = document.getElementById("modalProducto");
+      const modalBodega = document.getElementById("modalBodega");
+      const modalCantidad = document.getElementById("modalCantidad");
+      const modalCamion = document.getElementById("modalCamion");
+      const modalEstado = document.getElementById("modalEstado");
+
       function toggleMenu() {
         navLinks.classList.toggle("active");
       }
+
+      function abrirModal(producto, bodega, cantidad, camion, estado) {
+        modalProducto.textContent = producto;
+        modalBodega.textContent = bodega;
+        modalCantidad.textContent = cantidad;
+        modalCamion.textContent = camion;
+        modalEstado.textContent = estado;
+
+        const cant = parseInt(cantidad);
+        const btnAceptar = document.getElementById("btnAceptar");
+        const btnRechazar = document.getElementById("btnRechazar");
+
+        // Habilitar o deshabilitar botones
+        if (cant > 0) {
+          btnAceptar.disabled = false;
+          btnRechazar.disabled = false;
+        } else {
+          btnAceptar.disabled = true;
+          btnRechazar.disabled = true;
+        }
+
+        modal.style.display = "flex";
+      }
+
+      function cerrarModal() {
+        modal.style.display = "none";
+      }
+
+      window.onclick = function (e) {
+        if (e.target === modal) cerrarModal();
+      };
     </script>
   </body>
 </html>

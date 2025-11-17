@@ -152,56 +152,6 @@
         font-size: 0.9rem;
       }
 
-      /* --- MODAL --- */
-      .modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.4);
-        justify-content: center;
-        align-items: center;
-      }
-
-      .modal-content {
-        background: white;
-        border-radius: var(--radius);
-        padding: 25px;
-        width: 90%;
-        max-width: 400px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-        text-align: center;
-        position: relative;
-      }
-
-      .modal h3 {
-        color: var(--orange);
-        margin-bottom: 15px;
-      }
-
-      .modal select {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: var(--radius);
-        margin-bottom: 20px;
-        font-size: 1rem;
-      }
-
-      .close {
-        background: none;
-        border: none;
-        font-size: 1.5rem;
-        position: absolute;
-        right: 15px;
-        top: 10px;
-        color: var(--muted);
-        cursor: pointer;
-      }
-
       .navbar img {
         height: 80px;
       }
@@ -246,7 +196,8 @@
         <div></div>
       </div>
       <div class="nav-links" id="navLinks">
-        <a href="#">Recepción</a>
+        <a href="{% url 'Salida-Camiones' %}">Salidas</a>
+        <a href="{% url 'Llegada-Camiones' %}">Recepciones</a>
         <a href="{% url 'Gestion-Camiones-c' %}">Camiones</a>
         <a href="{% url 'logout' %}">Cerrar sesión</a>
       </div>
@@ -265,11 +216,12 @@
         <div class="card">
           <h2>📦 Salida de Camiones</h2>
           <p>
-            Confirme los camiones listos para distribuir productos a clientes o
-            distribuidores.
+            Confirme los camiones listos para distribuir o recoger productos.
           </p>
-          <button class="btn" onclick="openModal()">Generar Salidas</button>
-          <button class="btn" onclick="">Ver Salidas</button>
+          <form action="{% url 'Salida-Camiones' %}">
+            {% csrf_token %}
+            <button class="btn" onclick="">Generar Salida</button>
+          </form>
         </div>
 
         <div class="card">
@@ -277,7 +229,10 @@
           <p>
             Verifique la cantidad de productos recibidos y confirme su estado.
           </p>
-          <button class="btn">Ver Recepciones</button>
+          <form action="{% url 'Llegada-Camiones' %}">
+            {% csrf_token %}
+            <button class="btn">Ver Recepciones</button>
+          </form>
         </div>
 
         <div class="card">
@@ -295,46 +250,10 @@
       &copy; 2025 Verduras S.A — Sistema de gestión de granjas y bodegas
     </footer>
 
-    <!-- MODAL VISUAL -->
-    <div id="modalSalidas" class="modal">
-      <div class="modal-content">
-        <button class="close" onclick="closeModal()">&times;</button>
-        <h3>Seleccione tipo de salida</h3>
-        <select>
-          <option>Salida a granja</option>
-          <option>Salida a distribucion</option>
-        </select>
-        <h3>Seleccionar camión</h3>
-        <select>
-          <option value="">Seleccione un camión</option>
-          <option>ABC123 — Juan Pérez</option>
-          <option>XYZ789 — María Gómez</option>
-          <option>JKL456 — Pedro Ruiz</option>
-        </select>
-
-        <button class="btn">Generar salida</button>
-      </div>
-    </div>
-
     <script>
       function toggleMenu() {
         document.getElementById("navLinks").classList.toggle("show");
       }
-
-      function openModal() {
-        document.getElementById("modalSalidas").style.display = "flex";
-      }
-
-      function closeModal() {
-        document.getElementById("modalSalidas").style.display = "none";
-      }
-
-      window.onclick = function (event) {
-        const modal = document.getElementById("modalSalidas");
-        if (event.target == modal) {
-          modal.style.display = "none";
-        }
-      };
     </script>
   </body>
 </html>
