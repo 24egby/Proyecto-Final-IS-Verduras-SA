@@ -21,3 +21,10 @@ def obtener_id_instalacion(user_id):
 @group_required("CoorGranja")
 def home_coord_bodega(request):
     return render(request, "home_coordinador_granja.html")
+
+@login_required
+@group_required("CoorGranja")
+def escaneo_placa_ingreso(request):
+    if request.method == 'POST':
+        return 0
+    return render(request, 'escaneo_placa.html')

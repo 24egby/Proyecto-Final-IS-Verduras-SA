@@ -1,74 +1,261 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Escáner de Placas - Verduras S.A</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: "Segoe UI", sans-serif;
-      background: #f7f7f7;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      color: #222;
-    }
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Panel de Control - Verduras S.A</title>
+    <style>
+      :root {
+        --orange: #ff8800;
+        --bg: #f5f5f6;
+        --muted: #666;
+      }
 
-    h1 {
-      color: #ff8800;
-      margin-bottom: 20px;
-    }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: "Segoe UI", Roboto, Arial, sans-serif;
+      }
 
-    video {
-      width: 90%;
-      max-width: 500px;
-      border-radius: 12px;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
-      background: black;
-    }
+      body {
+        background: var(--bg);
+        color: #222;
+        line-height: 1.4;
+      }
 
-    button {
-      margin-top: 20px;
-      background: #ff8800;
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
+      /* --- NAVBAR --- */
+      .navbar {
+        background-color: var(--orange);
+        color: white;
+        padding: 12px 30px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        position: relative;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+      }
 
-    button:hover {
-      background: #e67400;
-    }
-  </style>
-</head>
-<body>
-  <h1>Escáner de Placas</h1>
-  <video id="camera" autoplay playsinline></video>
-  <button onclick="escanearPlaca()">Escanear Placa</button>
-  <form action="{% url 'Coord-Granja' %}" method="post">
-    {% csrf_token %}
-    <button type="submit">Volver</button>
-  </form>
-  <script>
-    const video = document.getElementById('camera');
+      .navbar img {
+        height: 80px;
+        width: auto;
+      }
 
-    // Solicita acceso a la cámara del dispositivo
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then(stream => { video.srcObject = stream; })
-      .catch(err => { alert('No se pudo acceder a la cámara: ' + err.message); });
+      .nav-links {
+        display: flex;
+        gap: 25px;
+        font-weight: bold;
+      }
 
-    // Simula el escaneo de la placa
-    function escanearPlaca() {
-      alert("Escaneando placa...");
-      // Aquí podrías añadir lógica para capturar una imagen y procesarla con OCR
-    }
-  </script>
-</body>
+      .nav-links a {
+        color: white;
+        text-decoration: none;
+        transition: 0.3s;
+      }
+
+      .nav-links a:hover {
+        text-decoration: underline;
+      }
+
+      .menu-toggle {
+        display: none;
+        flex-direction: column;
+        cursor: pointer;
+        gap: 5px;
+      }
+
+      .menu-toggle div {
+        width: 25px;
+        height: 3px;
+        background-color: white;
+      }
+
+      footer {
+        margin-top: 28px;
+        padding: 18px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      /* --- RESPONSIVE --- */
+      @media (max-width: 768px) {
+        .nav-links {
+          display: none;
+          flex-direction: column;
+          width: 100%;
+          background-color: var(--orange);
+          position: absolute;
+          top: 85px;
+          left: 0;
+          text-align: center;
+          padding: 10px 0;
+        }
+
+        .nav-links.active {
+          display: flex;
+        }
+
+        .menu-toggle {
+          display: flex;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+      <img src="{% static 'img/Logo.png' %}" alt="Logo Verduras S.A" />
+      <div class="menu-toggle" onclick="toggleMenu()">
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+      <div class="nav-links" id="navLinks">
+        <a href="{% url 'Coord-Granja' %}">Inicio</a>
+        <a href="#">Registrar produccion</a>
+        <a href="#">Salida de Camiones</a>
+        <a href="{% url 'logout' %}">Cerrar sesión</a>
+      </div>
+    </nav>
+
+    <div style="display: flex; justify-content: center; padding: 30px">
+      <div
+        class="card"
+        style="
+          background: white;
+          padding: 20px;
+          border-radius: 12px;
+          width: 460px;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+          text-align: center;
+        "
+      >
+        <h2>Lector de placas</h2>
+        <video
+          id="video"
+          autoplay
+          playsinline
+          style="width: 100%; border-radius: 8px; background: #000"
+        ></video>
+        <canvas id="canvas" style="display: none"></canvas>
+
+        <div>
+          <button
+            id="btn-snap"
+            style="
+              margin-top: 10px;
+              padding: 10px 14px;
+              border: none;
+              border-radius: 8px;
+              background: #1976d2;
+              color: white;
+              font-weight: 600;
+              cursor: pointer;
+            "
+          >
+            Tomar foto
+          </button>
+
+          <button
+            id="btn-send"
+            style="
+              margin-top: 10px;
+              padding: 10px 14px;
+              border: none;
+              display: none;
+              border-radius: 8px;
+              background: #1976d2;
+              color: white;
+              font-weight: 600;
+              cursor: pointer;
+            "
+          >
+            Enviar para leer
+          </button>
+        </div>
+
+        <div
+          id="resultado"
+          style="margin-top: 14px; font-size: 1.2em; color: #0d47a1"
+        >
+          {% if resultado %}Placa detectada:
+          <strong>{{ resultado }}</strong>{%endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+      &copy; <strong>Verduras S.A</strong> — Panel Gerencial · Todos los
+      derechos reservados
+    </footer>
+
+    <!-- SCRIPT DEL LECTOR -->
+    <script>
+      function toggleMenu() {
+        document.getElementById("navLinks").classList.toggle("active");
+      }
+
+      const video = document.getElementById("video");
+      const canvas = document.getElementById("canvas");
+      const btnSnap = document.getElementById("btn-snap");
+      const btnSend = document.getElementById("btn-send");
+      const resultadoDiv = document.getElementById("resultado");
+
+      async function initCamera() {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: "environment" },
+            audio: false,
+          });
+          video.srcObject = stream;
+        } catch (e) {
+          resultadoDiv.innerText =
+            "No se pudo acceder a la cámara: " + e.message;
+        }
+      }
+      initCamera();
+
+      btnSnap.addEventListener("click", () => {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        btnSnap.style.display = "none";
+        btnSend.style.display = "inline-block";
+      });
+
+      btnSend.addEventListener("click", async () => {
+        canvas.toBlob(
+          async (blob) => {
+            const form = new FormData();
+            form.append("image", blob, "placa.jpg");
+
+            resultadoDiv.innerText = "Enviando imagen...";
+
+            const resp = await fetch('{% url "Llegada-Camiones" %}', {
+              method: "POST",
+              body: form,
+            });
+
+            if (resp.redirected) {
+              window.location = resp.url;
+              return;
+            }
+
+            const text = await resp.text();
+            document.open();
+            document.write(text);
+            document.close();
+          },
+          "image/jpeg",
+          0.9
+        );
+      });
+    </script>
+  </body>
 </html>

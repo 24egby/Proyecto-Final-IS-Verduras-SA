@@ -5,9 +5,7 @@ import coordinadorGranja.views as VCG
 urlpatterns = [
     path('', VCG.home_coord_bodega, name="Coord-Granja"),
     
-    
-    
     #Recepciones de camiones
-    #path('Llegada-Camiones/', VCB.gestion_Ingreso_Camiones, name='Llegada-Camiones'),
+    path('Llegada-Camiones/', VCG.escaneo_placa_ingreso, name='Llegada-Camiones'),
     
 ]
