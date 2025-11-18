@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from Verduras_SA.decorators import group_required
-from .models import  VerCamiones, VerBodegas, VerRegistroSalidaGranja
+from .models import  VerCamiones, VerBodegas, VerRegistroSalidaGranja, VerProductos, VerInventario
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.contrib import messages
@@ -51,7 +51,8 @@ def gestion_Salida_Camiones(request):
     user_id = user.id 
     id_insta = obtener_id_instalacion(user_id)
     camiones = VerCamiones.objects.filter(id_instalacion=id_insta, estado="En garaje") 
-    return render(request, 'gestion_Salida_Camiones.html', {'camiones': camiones, 'id_instalacion':id_insta})
+    valores_maximo = 0
+    return render(request, 'gestion_Salida_Camiones.html', {'camiones': camiones, 'id_instalacion':id_insta, 'valores_maximos':valores_maximo})
 
 @login_required
 @group_required("CoorBodega")
@@ -69,8 +70,24 @@ def generar_Salida_Granja(request, id):
 
 @login_required
 @group_required("CoorBodega")
-def generar_Salida_Venta(request):
-    return 0
+def generar_Salida_Venta(request, id):
+    user = request.user
+    user_id = user.id 
+    id_insta = obtener_id_instalacion(user_id)
+    producto = VerBodegas.objects.filter(id=id_insta).values_list('producto', flat=True).first()
+    id_prod = VerProductos.objects.filter(nombre_producto=producto).values_list("id_producto", flat=True).first()
+    if request.method == "POST":
+        calidad = request.POST.get("calidad")
+        cantidad = request.POST.get("cantidad")
+        try:
+            with connection.cursor() as cursor:
+                cursor.callproc('crear_registro_salida_venta', [id, id_prod, id_insta, calidad, cantidad])
+                messages.success(request, "✅ Salida generada exitosamente.")
+        except Exception as e:
+            messages.error(request,f"Error:{e}")
+
+        return redirect("Salida-Camiones")
+    return redirect("Salida-Camiones")
 
 @login_required
 @group_required("CoorBodega")

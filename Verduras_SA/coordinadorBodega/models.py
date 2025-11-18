@@ -9,7 +9,7 @@ class VerCamiones(models.Model):
     class Meta:
         managed = False 
         db_table = 'ver_camiones' 
-        
+
 class VerBodegas(models.Model):
     id = models.IntegerField(primary_key=True)
     nombre = models.CharField(max_length=50)
@@ -34,3 +34,24 @@ class VerRegistroSalidaGranja(models.Model):
     class Meta:
         managed = False   
         db_table = 'ver_registro_salida_granja' 
+
+class VerProductos(models.Model):
+    id_producto = models.IntegerField(primary_key=True)
+    nombre_producto = models.CharField(max_length=50)
+    bodega = models.CharField(max_length=50)
+    direccion_bodega = models.CharField(max_length=100)
+
+    class Meta:
+        managed = False
+        db_table = 'ver_productos'
+
+class VerInventario(models.Model):
+    id = models.IntegerField(primary_key=True)
+    id_producto = models.IntegerField()
+    excelente = models.IntegerField()
+    bueno = models.IntegerField()
+    defectuoso = models.IntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'ver_inventario'

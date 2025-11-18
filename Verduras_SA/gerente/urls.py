@@ -37,5 +37,8 @@ urlpatterns = [
     path('Gestion-Bodegas/Gestion-Camiones/<int:id>/', VG.gestion_Camiones, name='Gestion-Camiones'),
     path('Gestion-Bodegas/Gestion-Camiones/Agregar-Camion/', VG.agregar_camion, name='Agregar-Camion'),
     path('Gestion-Bodegas/Gestion-Camiones/Eliminar-Camion/<int:id>/', VG.eliminar_Camion, name='Eliminar-Camion'),
+    
+    #Mapa de Camiones
+    path('Mapa/', VG.ver_mapa, name="Ver-Mapa"),
 
 ]

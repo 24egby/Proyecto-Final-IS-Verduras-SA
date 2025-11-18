@@ -12,7 +12,7 @@ urlpatterns = [
     #Salidas de camiones
     path('Salida-Camiones/', VCB.gestion_Salida_Camiones, name='Salida-Camiones'),
     path('Salida-Camiones/Generar-Salida-Granja/<int:id>/', VCB.generar_Salida_Granja, name='Salida-Granja'),
-    #path('Salida-Camiones/Generar-Salida-Venta/<int:id>/', VCB.generar_Salida_Venta, name='Salida-Venta'),
+    path('Salida-Camiones/Generar-Salida-Venta/<int:id>/', VCB.generar_Salida_Venta, name='Salida-Venta'),
     
     
     #Recepciones de camiones

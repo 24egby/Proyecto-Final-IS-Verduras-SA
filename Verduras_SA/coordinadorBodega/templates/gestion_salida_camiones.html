@@ -268,6 +268,53 @@
           transform: translateY(0);
         }
       }
+      #modalVenta select,
+      #modalVenta input[type="number"] {
+        width: 100%;
+        padding: 10px 12px;
+        font-size: 15px;
+        border: 2px solid #dcdcdc;
+        border-radius: 8px;
+        background: #fafafa;
+        outline: none;
+        transition: all 0.25s ease;
+        margin-bottom: 15px;
+      }
+
+      /* Efecto focus */
+      #modalVenta select:focus,
+      #modalVenta input[type="number"]:focus {
+        border-color: #4caf50;
+        background: #fff;
+        box-shadow: 0 0 4px rgba(76, 175, 80, 0.4);
+      }
+
+      /* Estilo del label */
+      #modalVenta label {
+        font-weight: bold;
+        display: block;
+        margin-top: 10px;
+        margin-bottom: 5px;
+        color: #333;
+      }
+
+      /* Estilo botón */
+      #modalVenta button[type="submit"] {
+        width: 100%;
+        padding: 12px;
+        background-color: #4caf50;
+        border: none;
+        color: white;
+        font-size: 16px;
+        border-radius: 10px;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: background 0.2s ease;
+      }
+
+      #modalVenta button[type="submit"]:hover {
+        background-color: #43a047;
+      }
     </style>
   </head>
 
@@ -314,7 +361,7 @@
       </ul>
     </div>
 
-    <!-- MODAL DE OPCIONES -->
+    <!-- MODAL PRINCIPAL -->
     <div class="modal" id="modalFarm">
       <div class="modal-content">
         <div class="modal-header">
@@ -326,7 +373,6 @@
           <button onclick="generarSalida('granja')">
             Generar salida a granja
           </button>
-
           <button onclick="generarSalida('venta')">
             Generar salida a venta
           </button>
@@ -334,10 +380,48 @@
       </div>
     </div>
 
+    <!-- MODAL SALIDA A VENTA -->
+    <div class="modal" id="modalVenta">
+      <div class="modal-content venta-content">
+        <div class="modal-header">
+          <h3>Salida a venta</h3>
+          <button class="close-btn" onclick="cerrarModalVenta()">✖</button>
+        </div>
+
+        <form method="POST" id="formVenta">
+          {% csrf_token %}
+          <div class="modal-body">
+            <label for="calidad">Calidad del producto:</label>
+            <select name="calidad" id="calidad" required>
+              <option value="">Seleccione calidad</option>
+              <option value="Excelente">Excelente</option>
+              <option value="Bueno">Bueno</option>
+              <option value="Defectuoso">Defectuoso</option>
+            </select>
+
+            <label for="cantidad">Cantidad:</label>
+            <input
+              type="number"
+              name="cantidad"
+              id="cantidad"
+              min="1"
+              required
+            />
+
+            <button type="submit" class="btn-confirmar">
+              Confirmar salida
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <script>
       const modal = document.getElementById("modalFarm");
       const modalPlaca = document.getElementById("modalPlaca");
+      const modalVenta = document.getElementById("modalVenta");
       const navLinks = document.getElementById("navLinks");
+      const formVenta = document.getElementById("formVenta");
 
       let idActual = null;
 
@@ -351,17 +435,25 @@
         modal.style.display = "none";
       }
 
+      // Función unificada para generar salida
       function generarSalida(tipo) {
+        if (!idActual) {
+          alert("Seleccione primero un camión.");
+          return;
+        }
+
         if (tipo === "granja") {
           window.location.href = `Generar-Salida-Granja/${idActual}/`;
         } else {
-          window.location.href = `/Salida-Camiones/Generar-Salida-Venta/${idActual}/`;
+          modal.style.display = "none";
+          modalVenta.style.display = "flex";
+          formVenta.action = `Generar-Salida-Venta/${idActual}/`;
         }
       }
 
-      window.onclick = function (event) {
-        if (event.target === modal) cerrarModal();
-      };
+      function cerrarModalVenta() {
+        modalVenta.style.display = "none";
+      }
 
       function toggleMenu() {
         navLinks.classList.toggle("active");
@@ -371,6 +463,12 @@
         const alerts = document.querySelectorAll(".msg-alert");
         alerts.forEach((a) => a.remove());
       }, 4500);
+
+
+      window.onclick = function (event) {
+        if (event.target === modal) cerrarModal();
+        if (event.target === modalVenta) cerrarModalVenta();
+      };
     </script>
   </body>
 </html>

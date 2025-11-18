@@ -108,6 +108,6 @@ class VerCamiones(models.Model):
     id_instalacion = models.IntegerField()
 
     class Meta:
-        managed = False  # Django no intentará crear, modificar ni borrar esta vista
-        db_table = 'ver_camiones'  # Nombre exacto de la vista en MySQL
+        managed = False  
+        db_table = 'ver_camiones' 
 

@@ -6,6 +6,7 @@ from django.db import connection
 from django.http import JsonResponse
 from django.contrib.auth.hashers import make_password
 from Verduras_SA.decorators import group_required
+import random
 
 @login_required
 @group_required("Gerente")
@@ -357,3 +358,31 @@ def eliminar_Camion(request, id):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
     return JsonResponse({'error': 'Método no permitido.'}, status=405)
+
+@login_required
+@group_required("Gerente")
+def ver_mapa(request):
+    BASE_LAT = 4.60
+    BASE_LNG = -74.10
+    def gen_coord():
+        return ( BASE_LAT + random.uniform(-0.10, 0.10), BASE_LNG + random.uniform(-0.10, 0.10))
+
+    granjas_list = []
+    for g in VerGranjas.objects.all():
+        lat, lng = gen_coord()
+        granjas_list.append({"nombre": g.nombre,"lat": lat,"lng": lng,})
+
+    bodegas_list = []
+    for b in VerBodegas.objects.all():
+        lat, lng = gen_coord()
+        bodegas_list.append({"nombre": b.nombre,"lat": lat,"lng": lng,})
+
+    camiones_list = []
+    camiones_activos = VerCamiones.objects.exclude(estado__in=["En garaje", "Mantenimiento"])
+
+    for c in camiones_activos:
+        lat, lng = gen_coord()
+        camiones_list.append({"placa": c.placa,"estado": c.estado,"lat": lat,"lng": lng,})
+
+    context = { "granjas": granjas_list, "bodegas": bodegas_list, "camiones": camiones_list,}
+    return render(request, "mapa.html", context)

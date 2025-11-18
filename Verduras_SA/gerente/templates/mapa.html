@@ -1,0 +1,217 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Panel de Control - Verduras S.A</title>
+
+    <!-- Leaflet -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+      :root {
+        --orange: #ff8800;
+        --bg: #f5f5f6;
+        --muted: #666;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: "Segoe UI", Roboto, Arial, sans-serif;
+      }
+
+      body {
+        background: var(--bg);
+        color: #222;
+        line-height: 1.4;
+      }
+
+      /* --- NAVBAR --- */
+      .navbar {
+        background-color: var(--orange);
+        color: white;
+        padding: 12px 30px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        position: relative;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+      }
+
+      .navbar img {
+        height: 80px;
+        width: auto;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 25px;
+        font-weight: bold;
+      }
+
+      .nav-links a {
+        color: white;
+        text-decoration: none;
+        transition: 0.3s;
+      }
+
+      .nav-links a:hover {
+        text-decoration: underline;
+      }
+
+      .menu-toggle {
+        display: none;
+        flex-direction: column;
+        cursor: pointer;
+        gap: 5px;
+      }
+
+      .menu-toggle div {
+        width: 25px;
+        height: 3px;
+        background-color: white;
+      }
+
+      footer {
+        margin-top: 28px;
+        padding: 18px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      /* MAPA */
+      #map {
+        width: 100%;
+        height: 520px;
+        margin-top: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      /* --- RESPONSIVE --- */
+      @media (max-width: 768px) {
+        .nav-links {
+          display: none;
+          flex-direction: column;
+          width: 100%;
+          background-color: var(--orange);
+          position: absolute;
+          top: 85px;
+          left: 0;
+          text-align: center;
+          padding: 10px 0;
+        }
+
+        .nav-links.active {
+          display: flex;
+        }
+
+        .menu-toggle {
+          display: flex;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+      <img src="{% static 'img/Logo.png' %}" alt="Logo Verduras S.A" />
+      <div class="menu-toggle" onclick="toggleMenu()">
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+      <div class="nav-links" id="navLinks">
+        <a href="{% url 'Gerente' %}">Inicio</a>
+        <a href="#">Informes</a>
+        <a href="{% url 'logout' %}">Cerrar sesión</a>
+      </div>
+    </nav>
+
+    <!-- CONTENEDOR QUE CENTRA EL MAPA -->
+    <div
+      style="
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+      "
+    >
+      <div
+        id="map"
+        style="
+          width: 90%;
+          max-width: 800px; /* evita que sea muy ancho en pantallas grandes */
+          height: 320px;
+          border-radius: 12px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        "
+      ></div>
+    </div>
+
+    <footer>
+      &copy; <strong>Verduras S.A</strong> — Panel Gerencial · Todos los
+      derechos reservados
+    </footer>
+
+    <script>
+      function toggleMenu() {
+        document.getElementById("navLinks").classList.toggle("active");
+      }
+
+      // MAPA
+      var map = L.map("map").setView([4.60, -74.10], 11);
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 18,
+      }).addTo(map);
+
+      // ICONOS
+      const iconGranja = L.icon({
+        iconUrl: "{% static 'icons/granja.ico' %}",
+        iconSize: [28, 28],
+      });
+
+      const iconBodega = L.icon({
+        iconUrl: "{% static 'icons/bodega.ico' %}",
+        iconSize: [28, 28],
+      });
+
+      const iconCamion = L.icon({
+        iconUrl: "{% static 'icons/camion.ico' %}",
+        iconSize: [28, 28],
+      });
+
+      // GRANJAS
+      {% for g in granjas %}
+      L.marker([{{ g.lat }}, {{ g.lng }}], { icon: iconGranja })
+        .addTo(map)
+        .bindPopup("<b>Granja:</b> {{ g.nombre }}");
+      {% endfor %}
+
+      // BODEGAS
+      {% for b in bodegas %}
+      L.marker([{{ b.lat }}, {{ b.lng }}], { icon: iconBodega })
+        .addTo(map)
+        .bindPopup("<b>Bodega:</b> {{ b.nombre }}");
+      {% endfor %}
+
+      // CAMIONES
+      {% for c in camiones %}
+      L.marker([{{ c.lat }}, {{ c.lng }}], { icon: iconCamion })
+        .addTo(map)
+        .bindPopup("<b>Camión:</b> {{ c.placa }}<br><b>Estado:</b> {{ c.estado }}");
+      {% endfor %}
+    </script>
+  </body>
+</html>
