@@ -17,5 +17,6 @@ urlpatterns = [
     
     #Recepciones de camiones
     path('Llegada-Camiones/', VCB.gestion_Ingreso_Camiones, name='Llegada-Camiones'),
-    
+    #path('Llegada-Camiones/', VCB.gestion_Ingreso_Camiones, name='Llegada-Camiones'),
+    path('Llegada-Camiones/Llegada-Venta/<int:id>/', VCB.terminar_salida_venta, name='Llegada-Venta'),
 ]

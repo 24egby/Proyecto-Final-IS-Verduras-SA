@@ -252,6 +252,18 @@
         cursor: not-allowed;
         opacity: 0.6;
       }
+      .msg-alert {
+        background: #d4edda;
+        color: #155724;
+        padding: 14px 20px;
+        border-radius: 10px;
+        border-left: 6px solid #28a745;
+        font-weight: bold;
+        text-align: center;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        opacity: 0;
+        animation: fadeIn 0.5s forwards, fadeOut 0.5s 3.5s forwards;
+      }
     </style>
   </head>
 
@@ -272,6 +284,14 @@
       </div>
     </nav>
 
+    {% if messages %}
+    <div id="msg-container">
+      {% for message in messages %}
+      <div class="msg-alert">{{ message }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
     <!-- CONTENIDO -->
     <div class="content">
       <div class="header">
@@ -279,7 +299,7 @@
       </div>
 
       <!-- LISTA 1: SALIDAS A GRANJA -->
-      <h3><br>Salidas a Granja<br><br></h3>
+      <h3><br />Salidas a Granja<br /><br /></h3>
       <ul class="admin-list">
         {% for r in registros_1 %}
         <li
@@ -290,7 +310,8 @@
             '{{ r.cantidad }}',
             '{{ r.camion }}',
             '{{ r.estado }}',
-            'granja'
+            'granja',
+            '{{ r.id }}'
           )"
         >
           <h3>{{ r.granja }}</h3>
@@ -301,8 +322,8 @@
         {% endfor %}
       </ul>
 
-      <!-- LISTA 2: SALIDAS A VENTA -->
-      <h3><br>Salidas para Venta<br><br></h3>
+      <!-- LISTA 2: SALIDAS PARA VENTA -->
+      <h3><br />Salidas para Venta<br /><br /></h3>
       <ul class="admin-list">
         {% for r in registros_2 %}
         <li
@@ -313,7 +334,8 @@
             '{{ r.cantidad }}',
             '{{ r.camion }}',
             '{{ r.estado }}',
-            'calidad'
+            'venta',
+            '{{ r.id }}'
           )"
         >
           <h3>{{ r.calidad }}</h3>
@@ -345,7 +367,6 @@
             Aceptar
           </button>
 
-          <!-- BOTÓN RECHAZAR (SE OCULTA EN VENTAS) -->
           <button id="btnRechazar" class="btn btn-rechazar" disabled>
             Rechazar
           </button>
@@ -359,40 +380,47 @@
       const navLinks = document.getElementById("navLinks");
       const modal = document.getElementById("modalRecepcion");
 
-      const modalProducto = document.getElementById("modalProducto");
-      const modalLugar = document.getElementById("modalLugar");
-      const modalCantidad = document.getElementById("modalCantidad");
-      const modalCamion = document.getElementById("modalCamion");
-      const modalEstado = document.getElementById("modalEstado");
-      const labelLugar = document.getElementById("labelLugar");
+      let currentID = null;
+      let currentTipo = null;
 
       function toggleMenu() {
         navLinks.classList.toggle("active");
       }
 
-      function abrirModal(producto, lugar, cantidad, camion, estado, tipo) {
+      function abrirModal(producto, lugar, cantidad, camion, estado, tipo, id) {
         modalProducto.textContent = producto;
         modalLugar.textContent = lugar;
         modalCantidad.textContent = cantidad;
         modalCamion.textContent = camion;
         modalEstado.textContent = estado;
 
+        currentID = id; // Guardamos ID
+        currentTipo = tipo; // Guardamos tipo
+
         const btnAceptar = document.getElementById("btnAceptar");
         const btnRechazar = document.getElementById("btnRechazar");
 
         // Cambiar etiqueta según tipo
-        if (tipo === "calidad") {
+        if (tipo === "venta") {
           labelLugar.textContent = "Calidad:";
-          btnRechazar.style.display = "none"; // Ocultar en ventas
+          btnRechazar.style.display = "none";
         } else {
           labelLugar.textContent = "Granja:";
-          btnRechazar.style.display = "inline-block"; // Mostrar solo en granja
+          btnRechazar.style.display = "inline-block";
         }
 
         // Validar cantidad
-        const cant = parseInt(cantidad);
-        btnAceptar.disabled = cant <= 0;
-        btnRechazar.disabled = cant <= 0;
+        btnAceptar.disabled = parseInt(cantidad) <= 0;
+        btnRechazar.disabled = parseInt(cantidad) <= 0;
+
+        // Acción al presionar ACEPTAR
+        btnAceptar.onclick = function () {
+          if (currentTipo === "venta") {
+            window.location.href = `Llegada-Venta/${currentID}/`;
+          } else {
+            window.location.href = `Llegada-Granja/${currentID}/`;
+          }
+        };
 
         modal.style.display = "flex";
       }
@@ -404,6 +432,11 @@
       window.onclick = function (e) {
         if (e.target === modal) cerrarModal();
       };
+
+      setTimeout(() => {
+        const alerts = document.querySelectorAll(".msg-alert");
+        alerts.forEach((a) => a.remove());
+      }, 4500);
     </script>
   </body>
 </html>

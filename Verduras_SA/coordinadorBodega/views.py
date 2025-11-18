@@ -99,3 +99,17 @@ def gestion_Ingreso_Camiones(request):
     registros_1 = VerRegistroSalidaGranja.objects.filter(bodega=nombre_bodega).exclude(estado="Finalizado")
     registros_2 = VerRegistroSalidaVenta.objects.filter(bodega=nombre_bodega).exclude(estado="Finalizado")
     return render(request, 'gestion_recepciones_camiones.html', {"registros_1":registros_1, "registros_2":registros_2})
+
+@login_required
+@group_required("CoorBodega")
+def terminar_salida_venta(request, id):
+    try:
+        with connection.cursor() as cursor:
+            cursor.callproc('terminar_salida_venta', [id])
+            messages.success(request, "✅ Salida terminada exitosamente.")
+            print("Bien")
+    except Exception as e:
+        messages.error(request,f"Error:{e}")
+        print("Error")
+    return redirect("Llegada-Camiones")
+
