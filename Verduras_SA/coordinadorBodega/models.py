@@ -35,6 +35,19 @@ class VerRegistroSalidaGranja(models.Model):
         managed = False   
         db_table = 'ver_registro_salida_granja' 
 
+class VerRegistroSalidaVenta(models.Model):
+    id = models.IntegerField(primary_key=True)
+    producto = models.CharField(max_length=100)
+    bodega = models.CharField(max_length=100)
+    calidad = models.CharField(max_length=100)
+    cantidad = models.IntegerField()
+    camion = models.CharField(max_length=50)
+    estado = models.CharField(max_length=50)
+
+    class Meta:
+        managed = False   
+        db_table = 'ver_registro_salida_venta' 
+
 class VerProductos(models.Model):
     id_producto = models.IntegerField(primary_key=True)
     nombre_producto = models.CharField(max_length=50)

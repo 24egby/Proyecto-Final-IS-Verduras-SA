@@ -278,8 +278,10 @@
         <h2>Recepciones Pendientes</h2>
       </div>
 
+      <!-- LISTA 1: SALIDAS A GRANJA -->
+      <h3><br>Salidas a Granja<br><br></h3>
       <ul class="admin-list">
-        {% for r in registros %}
+        {% for r in registros_1 %}
         <li
           class="admin-item"
           onclick="abrirModal(
@@ -287,14 +289,38 @@
             '{{ r.granja }}',
             '{{ r.cantidad }}',
             '{{ r.camion }}',
-            '{{ r.estado }}'
+            '{{ r.estado }}',
+            'granja'
           )"
         >
           <h3>{{ r.granja }}</h3>
           <p><strong>Camión:</strong> {{ r.camion }}</p>
         </li>
         {% empty %}
-        <li>No hay recepciones disponibles</li>
+        <li>No hay salidas a granja</li>
+        {% endfor %}
+      </ul>
+
+      <!-- LISTA 2: SALIDAS A VENTA -->
+      <h3><br>Salidas para Venta<br><br></h3>
+      <ul class="admin-list">
+        {% for r in registros_2 %}
+        <li
+          class="admin-item"
+          onclick="abrirModal(
+            '{{ r.producto }}',
+            '{{ r.calidad }}',
+            '{{ r.cantidad }}',
+            '{{ r.camion }}',
+            '{{ r.estado }}',
+            'calidad'
+          )"
+        >
+          <h3>{{ r.calidad }}</h3>
+          <p><strong>Camión:</strong> {{ r.camion }}</p>
+        </li>
+        {% empty %}
+        <li>No hay salidas para venta</li>
         {% endfor %}
       </ul>
     </div>
@@ -308,7 +334,7 @@
         </div>
 
         <div class="modal-body">
-          <p><b>Granja:</b> <span id="modalBodega"></span></p>
+          <p><b id="labelLugar">Granja:</b> <span id="modalLugar"></span></p>
           <p><b>Cantidad:</b> <span id="modalCantidad"></span></p>
           <p><b>Camión:</b> <span id="modalCamion"></span></p>
           <p><b>Estado:</b> <span id="modalEstado"></span></p>
@@ -318,9 +344,12 @@
           <button id="btnAceptar" class="btn btn-aceptar" disabled>
             Aceptar
           </button>
+
+          <!-- BOTÓN RECHAZAR (SE OCULTA EN VENTAS) -->
           <button id="btnRechazar" class="btn btn-rechazar" disabled>
             Rechazar
           </button>
+
           <button class="btn btn-ver-mapa">Ver en Mapa</button>
         </div>
       </div>
@@ -331,34 +360,39 @@
       const modal = document.getElementById("modalRecepcion");
 
       const modalProducto = document.getElementById("modalProducto");
-      const modalBodega = document.getElementById("modalBodega");
+      const modalLugar = document.getElementById("modalLugar");
       const modalCantidad = document.getElementById("modalCantidad");
       const modalCamion = document.getElementById("modalCamion");
       const modalEstado = document.getElementById("modalEstado");
+      const labelLugar = document.getElementById("labelLugar");
 
       function toggleMenu() {
         navLinks.classList.toggle("active");
       }
 
-      function abrirModal(producto, bodega, cantidad, camion, estado) {
+      function abrirModal(producto, lugar, cantidad, camion, estado, tipo) {
         modalProducto.textContent = producto;
-        modalBodega.textContent = bodega;
+        modalLugar.textContent = lugar;
         modalCantidad.textContent = cantidad;
         modalCamion.textContent = camion;
         modalEstado.textContent = estado;
 
-        const cant = parseInt(cantidad);
         const btnAceptar = document.getElementById("btnAceptar");
         const btnRechazar = document.getElementById("btnRechazar");
 
-        // Habilitar o deshabilitar botones
-        if (cant > 0) {
-          btnAceptar.disabled = false;
-          btnRechazar.disabled = false;
+        // Cambiar etiqueta según tipo
+        if (tipo === "calidad") {
+          labelLugar.textContent = "Calidad:";
+          btnRechazar.style.display = "none"; // Ocultar en ventas
         } else {
-          btnAceptar.disabled = true;
-          btnRechazar.disabled = true;
+          labelLugar.textContent = "Granja:";
+          btnRechazar.style.display = "inline-block"; // Mostrar solo en granja
         }
+
+        // Validar cantidad
+        const cant = parseInt(cantidad);
+        btnAceptar.disabled = cant <= 0;
+        btnRechazar.disabled = cant <= 0;
 
         modal.style.display = "flex";
       }

@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from Verduras_SA.decorators import group_required
-from .models import  VerCamiones, VerBodegas, VerRegistroSalidaGranja, VerProductos, VerInventario
+from .models import  VerCamiones, VerBodegas, VerRegistroSalidaGranja, VerProductos, VerRegistroSalidaVenta
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.contrib import messages
@@ -96,5 +96,6 @@ def gestion_Ingreso_Camiones(request):
     user_id = user.id 
     id_insta = obtener_id_instalacion(user_id)
     nombre_bodega = VerBodegas.objects.filter(id=id_insta).values_list('nombre', flat=True).first()
-    registros = VerRegistroSalidaGranja.objects.filter(bodega=nombre_bodega).exclude(estado="Finalizado")
-    return render(request, 'gestion_recepciones_camiones.html', {"registros":registros})
+    registros_1 = VerRegistroSalidaGranja.objects.filter(bodega=nombre_bodega).exclude(estado="Finalizado")
+    registros_2 = VerRegistroSalidaVenta.objects.filter(bodega=nombre_bodega).exclude(estado="Finalizado")
+    return render(request, 'gestion_recepciones_camiones.html', {"registros_1":registros_1, "registros_2":registros_2})
