@@ -1,0 +1,438 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recepciones - Verduras S.A</title>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background-color: #f8f9fa;
+      }
+
+      /* NAVBAR */
+      .navbar {
+        background-color: #ff8800;
+        color: white;
+        padding: 12px 30px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        position: relative;
+      }
+
+      .navbar img {
+        height: 80px;
+        width: auto;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 25px;
+        font-weight: bold;
+      }
+
+      .nav-links a {
+        color: white;
+        text-decoration: none;
+        transition: 0.3s;
+      }
+
+      .nav-links a:hover {
+        text-decoration: underline;
+      }
+
+      .menu-toggle {
+        display: none;
+        flex-direction: column;
+        cursor: pointer;
+        gap: 5px;
+      }
+
+      .menu-toggle div {
+        width: 25px;
+        height: 3px;
+        background-color: white;
+      }
+
+      /* CONTENIDO */
+      .content {
+        padding: 30px;
+        max-width: 900px;
+        margin: auto;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+      }
+
+      .header h2 {
+        color: #333;
+      }
+
+      /* LISTA */
+      .admin-list {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .admin-item {
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        padding: 18px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: 0.3s;
+        cursor: pointer;
+      }
+
+      .admin-item:hover {
+        transform: translateY(-3px);
+        background-color: #fff2e6;
+      }
+
+      .admin-item h3 {
+        color: #ff8800;
+        margin: 0;
+        font-size: 1.1rem;
+      }
+
+      /* MODAL */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+        z-index: 999;
+      }
+
+      .modal-content {
+        background: white;
+        border-radius: 10px;
+        padding: 25px;
+        width: 90%;
+        max-width: 400px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        animation: aparecer 0.3s ease;
+      }
+
+      @keyframes aparecer {
+        from {
+          transform: scale(0.9);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .modal-header h3 {
+        color: #ff8800;
+      }
+
+      .close-btn {
+        background: none;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+      }
+
+      .modal-body p {
+        color: #444;
+        margin: 8px 0;
+      }
+
+      .modal-buttons {
+        margin-top: 15px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+      }
+
+      .btn {
+        padding: 8px 14px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+      }
+
+      .btn-aceptar {
+        background-color: #1ae000;
+        color: white;
+      }
+
+      .btn-aceptar:hover {
+        background-color: #18c300;
+      }
+
+      .btn-rechazar {
+        background-color: #dc3545;
+        color: white;
+      }
+
+      .btn-rechazar:hover {
+        background-color: #c82333;
+      }
+
+      .btn-ver-mapa {
+        background-color: #007bff;
+        color: white;
+      }
+
+      .btn-ver-mapa:hover {
+        background-color: #0069d9;
+      }
+
+      /* RESPONSIVE */
+      @media (max-width: 768px) {
+        .nav-links {
+          display: none;
+          flex-direction: column;
+          width: 100%;
+          background-color: #ff8800;
+          position: absolute;
+          top: 70px;
+          left: 0;
+          text-align: center;
+          padding: 10px 0;
+        }
+
+        .nav-links.active {
+          display: flex;
+        }
+
+        .menu-toggle {
+          display: flex;
+        }
+
+        .admin-item {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 5px;
+        }
+
+        .admin-item h3 {
+          font-size: 1rem;
+        }
+      }
+
+      .btn-aceptar:disabled,
+      .btn-rechazar:disabled {
+        background-color: #aaa;
+        cursor: not-allowed;
+        opacity: 0.6;
+      }
+      .msg-alert {
+        background: #d4edda;
+        color: #155724;
+        padding: 14px 20px;
+        border-radius: 10px;
+        border-left: 6px solid #28a745;
+        font-weight: bold;
+        text-align: center;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        opacity: 0;
+        animation: fadeIn 0.5s forwards, fadeOut 0.5s 3.5s forwards;
+      }
+
+      .modal-body input[type="number"] {
+        width: 100px;
+        padding: 6px 10px;
+        font-size: 15px;
+        border: 2px solid #ccc;
+        border-radius: 8px;
+        outline: none;
+        transition: all 0.25s ease;
+      }
+
+      .modal-body input[type="number"]:focus {
+        border-color: #28a745; /* Verde suave */
+        box-shadow: 0 0 6px rgba(40, 167, 69, 0.4);
+      }
+
+      .modal-body input[type="number"]::-webkit-inner-spin-button,
+      .modal-body input[type="number"]::-webkit-outer-spin-button {
+        opacity: 0.5; /* más discreto */
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+      <img src="{% static 'img/Logo.png' %}" alt="Logo Verduras S.A" />
+      <div class="menu-toggle" onclick="toggleMenu()">
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+      <div class="nav-links" id="navLinks">
+        <a href="{% url 'Coord-Granja' %}">Inicio</a>
+        <a href="{% url 'Gestion-Ingresos'%}">Registrar produccion</a>
+        <a href="#">Salida de Camiones</a>
+        <a href="{% url 'logout' %}">Cerrar sesión</a>
+      </div>
+    </nav>
+
+    {% if messages %}
+    <div id="msg-container">
+      {% for message in messages %}
+      <div class="msg-alert">{{ message }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- CONTENIDO -->
+    <div class="content">
+      <div class="header">
+        <h2>Transportes a cargar.</h2>
+      </div>
+
+      <h3><br />Registros<br /><br /></h3>
+      <ul class="admin-list">
+        {% for r in registros %}
+        <li
+          class="admin-item"
+          onclick="abrirModal(
+            '{{ r.producto }}',
+            '{{ r.granja }}',
+            '{{ r.cantidad }}',
+            '{{ r.camion }}',
+            '{{ r.estado }}',
+            'granja',
+            '{{ r.id }}'
+          )"
+        >
+          <h3>{{ r.granja }}</h3>
+          <p><strong>Camión:</strong> {{ r.camion }}</p>
+        </li>
+        {% empty %}
+        <li>No hay salidas a granja</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <!-- MODAL -->
+    <div class="modal" id="modalRecepcion">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="modalProducto">Producto</h3>
+          <button class="close-btn" onclick="cerrarModal()">✖</button>
+        </div>
+
+        <div class="modal-body">
+          <p><b id="labelLugar">Granja:</b> <span id="modalLugar"></span></p>
+
+          <p>
+            <b>Cantidad:</b>
+            <input
+              type="number"
+              id="inputCantidad"
+              min="1"
+              value="1"
+              style="width: 80px; padding: 5px; margin-left: 10px"
+            />
+          </p>
+
+          <p><b>Camión:</b> <span id="modalCamion"></span></p>
+          <p><b>Estado:</b> <span id="modalEstado"></span></p>
+        </div>
+
+        <div class="modal-buttons">
+          <button id="btnAceptar" class="btn btn-aceptar" disabled>
+            Aceptar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const navLinks = document.getElementById("navLinks");
+      const modal = document.getElementById("modalRecepcion");
+      const inputCantidad = document.getElementById("inputCantidad");
+      const btnAceptar = document.getElementById("btnAceptar");
+
+      let currentID = null;
+      let currentTipo = null;
+
+      function toggleMenu() {
+        navLinks.classList.toggle("active");
+      }
+
+      function abrirModal(producto, lugar, cantidad, camion, estado, tipo, id) {
+        modalProducto.textContent = producto;
+        modalLugar.textContent = lugar;
+        modalCamion.textContent = camion;
+        modalEstado.textContent = estado;
+
+        currentID = id;
+        currentTipo = tipo;
+
+        // Cambiar etiqueta para venta/granja
+        labelLugar.textContent = tipo === "venta" ? "Calidad:" : "Granja:";
+
+        // Establecer valor inicial
+        inputCantidad.value = cantidad > 0 ? cantidad : 1;
+
+        validarCantidad();
+
+        btnAceptar.onclick = function () {
+          const cantidadIngresada = inputCantidad.value;
+          window.location.href = `Actualizar-Ingreso/${currentID}/`;
+        };
+
+        modal.style.display = "flex";
+      }
+
+      function validarCantidad() {
+        const val = parseInt(inputCantidad.value);
+        btnAceptar.disabled = isNaN(val) || val < 1;
+      }
+
+      inputCantidad.addEventListener("input", validarCantidad);
+
+      function cerrarModal() {
+        modal.style.display = "none";
+      }
+
+      window.onclick = function (e) {
+        if (e.target === modal) cerrarModal();
+      };
+
+      setTimeout(() => {
+        const alerts = document.querySelectorAll(".msg-alert");
+        alerts.forEach((a) => a.remove());
+      }, 4500);
+    </script>
+  </body>
+</html>

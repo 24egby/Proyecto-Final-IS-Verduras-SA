@@ -135,56 +135,37 @@
         "
       >
         <h2>Lector de placas</h2>
+
+        <!-- Cámara -->
         <video
           id="video"
           autoplay
           playsinline
-          style="width: 100%; border-radius: 8px; background: #000"
+          style="width: 100%; border-radius: 8px; border: 2px solid #333"
         ></video>
+
         <canvas id="canvas" style="display: none"></canvas>
 
-        <div>
-          <button
-            id="btn-snap"
-            style="
-              margin-top: 10px;
-              padding: 10px 14px;
-              border: none;
-              border-radius: 8px;
-              background: #1976d2;
-              color: white;
-              font-weight: 600;
-              cursor: pointer;
-            "
-          >
-            Tomar foto
-          </button>
-
-          <button
-            id="btn-send"
-            style="
-              margin-top: 10px;
-              padding: 10px 14px;
-              border: none;
-              display: none;
-              border-radius: 8px;
-              background: #1976d2;
-              color: white;
-              font-weight: 600;
-              cursor: pointer;
-            "
-          >
-            Enviar para leer
-          </button>
-        </div>
-
-        <div
-          id="resultado"
-          style="margin-top: 14px; font-size: 1.2em; color: #0d47a1"
+        <button
+          id="captureBtn"
+          style="
+            margin-top: 12px;
+            padding: 10px 20px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+          "
         >
-          {% if resultado %}Placa detectada:
-          <strong>{{ resultado }}</strong>{%endif %}
-        </div>
+          Capturar y Analizar
+        </button>
+
+        <p id="result" style="font-size: 18px; margin-top: 12px; color: #333">
+          Esperando captura...
+        </p>
       </div>
     </div>
 
@@ -194,68 +175,72 @@
       derechos reservados
     </footer>
 
-    <!-- SCRIPT DEL LECTOR -->
     <script>
       function toggleMenu() {
         document.getElementById("navLinks").classList.toggle("active");
       }
 
+      // Obtener CSRF
+      function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+          const cookies = document.cookie.split(";");
+          for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === name + "=") {
+              cookieValue = decodeURIComponent(
+                cookie.substring(name.length + 1)
+              );
+              break;
+            }
+          }
+        }
+        return cookieValue;
+      }
+      const csrftoken = getCookie("csrftoken");
+
+      // Cámara
       const video = document.getElementById("video");
       const canvas = document.getElementById("canvas");
-      const btnSnap = document.getElementById("btn-snap");
-      const btnSend = document.getElementById("btn-send");
-      const resultadoDiv = document.getElementById("resultado");
+      const result = document.getElementById("result");
 
-      async function initCamera() {
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: "environment" },
-            audio: false,
-          });
-          video.srcObject = stream;
-        } catch (e) {
-          resultadoDiv.innerText =
-            "No se pudo acceder a la cámara: " + e.message;
-        }
-      }
-      initCamera();
+      navigator.mediaDevices
+        .getUserMedia({ video: true })
+        .then((stream) => (video.srcObject = stream))
+        .catch((err) => alert("Error al acceder a la cámara: " + err));
 
-      btnSnap.addEventListener("click", () => {
+      // Capturar foto y enviar a Django
+      document.getElementById("captureBtn").onclick = async () => {
+        const ctx = canvas.getContext("2d");
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        btnSnap.style.display = "none";
-        btnSend.style.display = "inline-block";
-      });
+        ctx.drawImage(video, 0, 0);
 
-      btnSend.addEventListener("click", async () => {
         canvas.toBlob(
           async (blob) => {
-            const form = new FormData();
-            form.append("image", blob, "placa.jpg");
+            const formData = new FormData();
+            formData.append("photo", blob, "photo.jpg");
 
-            resultadoDiv.innerText = "Enviando imagen...";
+            result.textContent = "Procesando imagen...";
 
-            const resp = await fetch('{% url "Llegada-Camiones" %}', {
+            const res = await fetch("{% url 'Reconocer-Placa' %}", {
               method: "POST",
-              body: form,
+              headers: { "X-CSRFToken": csrftoken },
+              body: formData,
             });
 
-            if (resp.redirected) {
-              window.location = resp.url;
-              return;
-            }
+            const data = await res.json();
 
-            const text = await resp.text();
-            document.open();
-            document.write(text);
-            document.close();
+            if (data.ok) {
+              result.textContent = "✅ Placa detectada: " + data.plate;
+            } else {
+              result.textContent = "❌ Error: " + data.error;
+            }
           },
           "image/jpeg",
           0.9
         );
-      });
+      };
     </script>
   </body>
 </html>

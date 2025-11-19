@@ -198,7 +198,8 @@
 
       <div class="nav-links" id="links">
         <a href="{% url 'Coord-Granja' %}">Inicio</a>
-        <a href="#">Entrada de Camiones</a>
+        <a href="{% url 'Llegada-Camiones-CG'%}">Entrada de Camiones</a>
+        <a href="{% url 'Gestion-Ingresos'%}">Registrara produccion</a>
         <a href="#">Salida de Camiones</a>
         <a href="{% url 'logout' %}">Cerrar sesión</a>
       </div>
@@ -215,15 +216,17 @@
       </div>
 
       <div class="grid">
-        <div class="card">
-          <h2>🌱 Registrar produccion</h2>
-          <p>
-            Se ingresa la produccion de un producto y en que camion se carga
-          </p>
-          <button class="btn">Registrar produccion</button>
-        </div>
-
-        <form action="{% url 'Llegada-Camiones' %}" method="get">
+        <form action="{% url 'Gestion-Ingresos' %}" method="get">
+          {% csrf_token %}
+          <div class="card">
+            <h2>🌱 Registrar produccion</h2>
+            <p>
+              Se ingresa la produccion de un producto y en que camion se carga
+            </p>
+            <button class="btn">Registrar produccion</button>
+          </div>
+        </form>
+        <form action="{% url 'Gestion-Ingresos' %}" method="get">
           {% csrf_token %}
           <div class="card">
             <h2>🚛 Entrada de camiones</h2>
